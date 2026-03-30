@@ -10,12 +10,20 @@ import Dashboard from './pages/Dashboard.jsx';
 import Login from './pages/Login.jsx';
 import SignUp from './pages/SignUp.jsx';
 import { RouterProvider } from 'react-router-dom';
+import ForgotPassword from './pages/ForgotPassword'
+import ResetPassword from './pages/ResetPassword'
+
+
+
 
 const router= createBrowserRouter(
     [
         {path:"/",element : <Dashboard/>,},
         {path:"/login",element : <Login/>,},
-        {path:"/signUp",element : <SignUp/>,}
+        {path:"/signup",element : <SignUp/>,},
+        {path:"/forgot-password",element : <ForgotPassword />,},
+        {path:"/reset-password",element : <ResetPassword/>,}
+        
     ]
 )
 

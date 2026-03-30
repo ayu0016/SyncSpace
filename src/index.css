@@ -5,20 +5,31 @@
 
   /* 🎨 Colors */
   --color-background: #0a0a0f;
-  --color-primary: #4a9eed;
+  --color-primary: #9dcaff;
   --color-accent-purple: #a855f7;
   --color-accent-amber: #f59e0b;
   --color-accent-green: #22c55e;
   --color-accent-pink: #ec4899;
   --color-surface: rgba(255, 255, 255, 0.05);
 
+  /* 🎨 Stitch Design Colors */
+  --color-primary-container: #4a9eed;
+  --color-on-primary-container: #003359;
+  --color-on-surface: #e4e1e9;
+  --color-on-surface-variant: #c0c7d3;
+  --color-outline-variant: #404751;
+  --color-surface-container-lowest: #0e0e13;
+  --color-surface-container: #1f1f25;
+
   /* 🔤 Font */
   --font-sans: "Plus Jakarta Sans", sans-serif;
+  --font-display: "Playfair Display", serif;
 
   /* 🔲 Border Radius */
   --radius-card: 8px;
 
 }
+
 @layer base {
   body {
     background-color: var(--color-background);
@@ -31,4 +42,24 @@
     margin: 0;
     padding: 0;
   }
+}
+
+/* 🎨 Custom Classes */
+.mesh-bg {
+  background-color: #0a0a0f;
+  background-image: 
+    radial-gradient(at 0% 0%, rgba(74, 158, 237, 0.15) 0px, transparent 50%),
+    radial-gradient(at 100% 100%, rgba(87, 27, 193, 0.15) 0px, transparent 50%),
+    radial-gradient(at 50% 50%, rgba(13, 13, 18, 1) 0px, transparent 80%);
+}
+
+.glass-card {
+  background: rgba(255, 255, 255, 0.05);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.glow-text {
+  text-shadow: 0 0 10px rgba(74, 158, 237, 0.5);
 }
