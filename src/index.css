@@ -1,1 +1,34 @@
 @import "tailwindcss";
+@import "@fontsource/plus-jakarta-sans";
+
+@theme {
+
+  /* 🎨 Colors */
+  --color-background: #0a0a0f;
+  --color-primary: #4a9eed;
+  --color-accent-purple: #a855f7;
+  --color-accent-amber: #f59e0b;
+  --color-accent-green: #22c55e;
+  --color-accent-pink: #ec4899;
+  --color-surface: rgba(255, 255, 255, 0.05);
+
+  /* 🔤 Font */
+  --font-sans: "Plus Jakarta Sans", sans-serif;
+
+  /* 🔲 Border Radius */
+  --radius-card: 8px;
+
+}
+@layer base {
+  body {
+    background-color: var(--color-background);
+    font-family: var(--font-sans);
+    color: #ffffff;
+  }
+
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+}
