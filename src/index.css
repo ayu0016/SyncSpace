@@ -63,3 +63,30 @@
 .glow-text {
   text-shadow: 0 0 10px rgba(74, 158, 237, 0.5);
 }
+
+.glass {
+  background: rgba(255, 255, 255, 0.03);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.hud-glow-blue { box-shadow: 0 0 20px -5px rgba(74, 158, 237, 0.3); }
+.hud-glow-amber { box-shadow: 0 0 20px -5px rgba(245, 158, 11, 0.3); }
+.hud-glow-purple { box-shadow: 0 0 20px -5px rgba(139, 92, 246, 0.3); }
+.hud-glow-green { box-shadow: 0 0 20px -5px rgba(34, 197, 94, 0.3); }
+.hud-glow-pink { box-shadow: 0 0 20px -5px rgba(236, 72, 153, 0.3); }
+
+.card-outline-blue { border: 1px solid rgba(74, 158, 237, 0.5); }
+.card-outline-amber { border: 1px solid rgba(245, 158, 11, 0.5); }
+.card-outline-purple { border: 1px solid rgba(139, 92, 246, 0.5); }
+.card-outline-green { border: 1px solid rgba(34, 197, 94, 0.5); }
+.card-outline-pink { border: 1px dashed rgba(236, 72, 153, 0.5); }
+
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+.custom-scrollbar::-webkit-scrollbar { width: 4px; }
+.custom-scrollbar::-webkit-scrollbar-track { background: rgba(255,255,255,0.02); }
+.custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
+.custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(74,158,237,0.3); }
