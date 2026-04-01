@@ -2,6 +2,7 @@ import { useEffect } from 'react'
 import { useDispatch } from 'react-redux'
 import { login, logout } from './store/authSlice'
 import { authService } from './supabase/auth'
+import { todosService } from './supabase/todoServices'
 
 export default function App() {
   const dispatch = useDispatch()
@@ -28,6 +29,7 @@ export default function App() {
 
     return () => subscription.unsubscribe()
   }, [dispatch])
+ 
 
   return <Dashboard />
 }

@@ -13,6 +13,7 @@ import { RouterProvider } from 'react-router-dom';
 import ForgotPassword from './pages/ForgotPassword'
 import ResetPassword from './pages/ResetPassword'
 import LandingPage from './pages/LandingPage.jsx';
+import AddTracker from './pages/AddTracker.jsx';
 
 
 
@@ -24,7 +25,8 @@ const router= createBrowserRouter(
         {path:"/login",element : <Login/>,},
         {path:"/signup",element : <SignUp/>,},
         {path:"/forgot-password",element : <ForgotPassword />,},
-        {path:"/reset-password",element : <ResetPassword/>,}
+        {path:"/reset-password",element : <ResetPassword/>,},
+        {path:"/add-tracker",element : <AddTracker/>,},
         
     ]
 )

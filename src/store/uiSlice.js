@@ -4,7 +4,8 @@ const uiSlice = createSlice({
   name: "ui",
   initialState: {
     modalType: null,
-    activeWidgetId: null
+    activeWidgetId: null,
+    isTodoOpen: false 
   },
   reducers: {
     openModal: (state, action) => {
@@ -16,9 +17,17 @@ const uiSlice = createSlice({
     },
     setActiveWidget: (state, action) => {
         state.activeWidgetId=action.payload
+    },
+    openTodo: (state)=>{
+         state.isTodoOpen=true
+        },
+    CloseTodo: (state)=>{
+        state.isTodoOpen=false
     }
+
+
   }
 })
 
-export const { openModal, closeModal, setActiveWidget } = uiSlice.actions
+export const { openModal, closeModal, setActiveWidget,CloseTodo,openTodo } = uiSlice.actions
 export default uiSlice.reducer

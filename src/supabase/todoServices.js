@@ -1,4 +1,4 @@
-import { supabase } from './supabaseClient'
+import { supabase } from './supabase'
 
 class TodosService {
   async fetchTodos(userId) {
@@ -7,15 +7,17 @@ class TodosService {
       .select('*')
       .eq('user_id', userId)
       .order('created_at', { ascending: true })
-    return { data, error }
-  }
+    if (error) throw error
+    return data  
+}
 
   async addTodo(userId, text) {
     const { data, error } = await supabase
       .from('todos')
       .insert({ user_id: userId, text, completed: false })
       .select()
-    return { data, error }
+    if (error) throw error
+    return data
   }
 
   async updateTodo(id, completed) {
@@ -24,7 +26,8 @@ class TodosService {
       .update({ completed })
       .eq('id', id)
       .select()
-    return { data, error }
+    if (error) throw error
+    return data
   }
 
   async deleteTodo(id) {
@@ -32,7 +35,8 @@ class TodosService {
       .from('todos')
       .delete()
       .eq('id', id)
-    return { error }
+    if (error) throw error
+    return data
   }
 }
 
