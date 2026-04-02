@@ -1,26 +1,53 @@
 import { useState, useRef, useEffect } from 'react'
-import { useDispatch,useSelector } from 'react-redux'
-import { CloseTodo } from '../../store/uiSlice'
+import { useDispatch } from 'react-redux'
+import { todosService } from '../../supabase/todoServices'
+import { updateTodo, removeTodo } from '../../store/todoSlice'
 
-export default function TodoItem({ todo, onToggle, onDelete, onEdit }) {
+export default function TodoItem({ todo }) {
   const [isEditing, setIsEditing] = useState(false)
   const [editValue, setEditValue] = useState(todo.text)
   const [isDeleting, setIsDeleting] = useState(false)
   const inputRef = useRef(null)
+  const dispatch = useDispatch()
 
   useEffect(() => {
     if (isEditing) inputRef.current?.focus()
   }, [isEditing])
 
   const handleDoubleClick = () => {
-    if (todo.is_complete) return
+    if (todo.completed) return   // ✅ use completed not is_complete
     setIsEditing(true)
   }
 
-  const handleEditSave = () => {
-    const trimmed = editValue.trim()
-    if (trimmed && trimmed !== todo.text) onEdit(todo.id, trimmed)
-    setIsEditing(false)
+  const onDelete = async (id) => {
+    try {
+      await todosService.deleteTodo(id)       // ✅ no del variable needed
+      dispatch(removeTodo(id))
+    } catch (error) {
+      console.error('Failed to delete todo:', error)
+    }
+  }
+
+  const handleToggle = async (id, currentCompleted) => {
+    try {
+      const updated = await todosService.updateTodo(id, !currentCompleted)
+      dispatch(updateTodo({ id, updatedTodo: updated }))  // ✅ correct dispatch shape
+    } catch (error) {
+      console.error('Failed to toggle todo:', error)
+    }
+  }
+
+  const handleEditSave = async () => {
+    try {
+      const trimmed = editValue.trim()
+      if (trimmed && trimmed !== todo.text) {
+        const updated = await todosService.updateTodoText(todo.id, trimmed)
+        dispatch(updateTodo({ id: todo.id, updatedTodo: updated }))  // ✅ correct dispatch shape
+      }
+      setIsEditing(false)
+    } catch (error) {
+      console.error('Failed to update todo:', error)
+    }
   }
 
   const handleEditKeyDown = (e) => {
@@ -39,31 +66,31 @@ export default function TodoItem({ todo, onToggle, onDelete, onEdit }) {
   return (
     <div
       className={`
-        group flex items-center gap-[10px] px-[10px] py-[9px]
-        rounded-lg border mb-[5px] last:mb-0 cursor-pointer
-        transition-all duration-[180ms] ease-in-out
-        ${todo.is_complete
-          ? 'bg-white/[0.01] border-white/5 border-l-2 border-l-green-500/35 hover:bg-green-500/[0.04] hover:border-green-500/15 hover:border-l-green-500/50'
-          : 'bg-white/[0.025] border-white/5 border-l-2 border-l-[#4a9eed] hover:bg-[#4a9eed]/[0.07] hover:border-[#4a9eed]/25 hover:border-l-[#4a9eed]'
+        group flex items-center gap-2.5 px-2.5 py-2.25
+        rounded-lg border mb-1.25 last:mb-0 cursor-pointer
+        transition-all duration-180 ease-in-out
+        ${todo.completed                          
+          ? 'bg-white/1 border-white/5 border-l-2 border-l-green-500/35 hover:bg-green-500/4 hover:border-green-500/15 hover:border-l-green-500/50'
+          : 'bg-white/2.5 border-white/5 border-l-2 border-l-primary-container hover:bg-primary-container/[0.07] hover:border-primary-container/25 hover:border-l-primary-container'
         }
         ${isDeleting ? 'opacity-0 -translate-y-2 pointer-events-none' : 'opacity-100 translate-y-0'}
-        hover:translate-x-[2px]
+        hover:translate-x-0.5
       `}
     >
       {/* Checkbox */}
       <button
-        onClick={() => onToggle(todo.id, todo.is_complete)}
+        onClick={() => handleToggle(todo.id, todo.completed)}  
         className={`
-          flex-shrink-0 w-[16px] h-[16px] rounded-full border-[1.5px]
+          shrink-0 w-4 h-4 rounded-full border-[1.5px]
           flex items-center justify-center
           transition-all duration-150
-          ${todo.is_complete
+          ${todo.completed                        
             ? 'border-green-500 bg-green-500/15'
-            : 'border-white/20 group-hover:border-[#4a9eed]/60'
+            : 'border-white/20 group-hover:border-primary-container/60'
           }
         `}
       >
-        {todo.is_complete && (
+        {todo.completed && (                      
           <svg width="9" height="7" viewBox="0 0 9 7" fill="none">
             <path d="M1 3.5L3.2 6L8 1" stroke="#22c55e" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
@@ -80,14 +107,14 @@ export default function TodoItem({ todo, onToggle, onDelete, onEdit }) {
             onBlur={handleEditSave}
             onKeyDown={handleEditKeyDown}
             className="w-full bg-transparent text-[13px] text-white leading-snug
-              border-b border-[#4a9eed]/60 outline-none pb-0.5"
+              border-b border-primary-container/60 outline-none pb-0.5"
           />
         ) : (
           <span
             className={`
               text-[13px] leading-snug block select-none
               transition-colors duration-150
-              ${todo.is_complete
+              ${todo.completed                    
                 ? 'line-through text-white/25'
                 : 'text-white/82 cursor-text'
               }
@@ -98,13 +125,13 @@ export default function TodoItem({ todo, onToggle, onDelete, onEdit }) {
         )}
       </div>
 
-      {/* Trash icon — invisible by default, fades in on row hover */}
+      {/* Trash icon */}
       <button
         onClick={handleDelete}
         className="
-          flex-shrink-0 w-[14px] h-[14px]
+          shrink-0 w-3.5 h-3.5
           text-white/0 group-hover:text-white/20
-          hover:!text-red-500
+          hover:text-red-500!
           transition-colors duration-150
         "
       >

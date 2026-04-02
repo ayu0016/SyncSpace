@@ -16,6 +16,7 @@ class TodosService {
       .from('todos')
       .insert({ user_id: userId, text, completed: false })
       .select()
+      .single()
     if (error) throw error
     return data
   }
@@ -26,9 +27,20 @@ class TodosService {
       .update({ completed })
       .eq('id', id)
       .select()
+      .single()
     if (error) throw error
     return data
   }
+  async updateTodoText(id, text) {
+    const { data, error } = await supabase
+        .from('todos')
+        .update({ text })
+        .eq('id', id)
+        .select()
+        .single()
+    if (error) throw error
+    return data
+    }
 
   async deleteTodo(id) {
     const { error } = await supabase
@@ -36,7 +48,7 @@ class TodosService {
       .delete()
       .eq('id', id)
     if (error) throw error
-    return data
+    
   }
 }
 

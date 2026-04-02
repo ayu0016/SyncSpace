@@ -28,6 +28,8 @@ export default function Dashboard() {
 
   }, [userData,dispatch])
 
+  
+
   return (
     <div className="h-screen flex flex-col">
 
@@ -69,7 +71,6 @@ export default function Dashboard() {
           >
             <TodoPanel
               isMobile={true}
-              onClose={() => dispatch(CloseTodo())}
             />
           </div>
         </>
