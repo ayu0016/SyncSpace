@@ -13,17 +13,17 @@ export default function WidgetCard({ widget, children, buttonLabel, onLogClick }
     <div
       className="
         relative overflow-hidden
-        rounded-[14px] bg-white/[0.04] border border-white/[0.08]
+        rounded-[14px] bg-white/4 border border-white/8
         p-4 cursor-pointer
         transition-all duration-200
-        hover:bg-white/[0.06] hover:border-white/[0.14]
+        hover:bg-white/6 hover:border-white/[0.14]
         font-['Plus_Jakarta_Sans']
         flex flex-col
       "
     >
       {/* Accent bar — top of card */}
       <div
-        className="absolute top-0 left-0 right-0 h-[3px] rounded-t-[14px]"
+        className="absolute top-0 left-0 right-0 h-0.75 rounded-t-[14px]"
         style={{ background: accent }}
       />
 
@@ -34,14 +34,14 @@ export default function WidgetCard({ widget, children, buttonLabel, onLogClick }
           {/* Custom widgets get icon box, predefined get accent dot */}
           {widget.type === 'custom' ? (
             <div
-              className="w-6 h-6 rounded-[7px] flex items-center justify-center text-[13px] flex-shrink-0"
+              className="w-6 h-6 rounded-[7px] flex items-center justify-center text-[13px] shrink-0"
               style={{ background: `${accent}25` }}
             >
               {widget.icon}
             </div>
           ) : (
             <div
-              className="w-[7px] h-[7px] rounded-full flex-shrink-0"
+              className="w-1.75 h-1.75 rounded-full shrink-0"
               style={{ background: accent }}
             />
           )}
@@ -55,13 +55,13 @@ export default function WidgetCard({ widget, children, buttonLabel, onLogClick }
         {/* Badge — "Custom" for custom widgets, "Today" for predefined */}
         {widget.type === 'custom' ? (
           <span
-            className="text-[10px] px-2 py-[2px] rounded-full font-semibold"
+            className="text-[10px] px-2 py-0.5 rounded-full font-semibold"
             style={{ background: `${accent}20`, color: accent }}
           >
             Custom
           </span>
         ) : (
-          <span className="text-[10px] px-2 py-[2px] rounded-full text-slate-400 bg-white/[0.06]">
+          <span className="text-[10px] px-2 py-0.5 rounded-full text-slate-400 bg-white/6">
             Today
           </span>
         )}
