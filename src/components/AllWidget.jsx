@@ -34,7 +34,7 @@ export default function AllWidget() {
             onLogClick={() => {/* TODO: dispatch openModal(widget) */}}
           >
             <Component
-              entries={entries[widget.id] ?? []}
+              widget={widget}
               accent={widget.color}
             />
           </WidgetCard>

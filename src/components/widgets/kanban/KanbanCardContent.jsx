@@ -3,22 +3,25 @@
 //   entries → array of ALL kanban task entries for this widget from supabase
 //   accent  → widget.color
 
-export default function KanbanCardContent({ entries, accent }) {
+import { useAnalytics } from "../widgetUtils"
+
+export default function KanbanCardContent({ widget, accent }) {
+    const { buckets,entries } = useAnalytics(widget)
 
   // TODO: filter entries by status from payload
-  // const todoTasks       = entries.filter(e => e.payload.status === 'todo')
-  // const inProgressTasks = entries.filter(e => e.payload.status === 'in_progress')
-  // const doneTasks       = entries.filter(e => e.payload.status === 'done')
+  const todoTasks       = entries.filter(e => e.payload?.status === 'todo')
+  const inProgressTasks = entries.filter(e => e.payload?.status === 'in_progress')
+  const doneTasks       = entries.filter(e => e.payload?.status === 'done')
 
-  const todoCount = 0            // todoTasks.length
-  const inProgressCount = 0      // inProgressTasks.length
-  const doneCount = 0            // doneTasks.length
-  const totalCount = 0           // entries.length
+  const todoCount = todoTasks.length 
+  const inProgressCount = inProgressTasks.length
+  const doneCount = doneTasks.length
+  const totalCount = entries.length
 
   // TODO: get most recently updated task
   // sort entries by updated_at desc, take first
-  const lastTaskTitle = '—'      // most recently updated entry's payload.task_title
-  const lastTaskPriority = '—'   // most recently updated entry's payload.priority → 'low' | 'medium' | 'high'
+  const lastTaskTitle = buckets.latestEntry?.payload?.task_title ??'—'      // most recently updated entry's payload.task_title
+  const lastTaskPriority = buckets.latestEntry?.payload?.priority ??'—'   // most recently updated entry's payload.priority → 'low' | 'medium' | 'high'
 
   // Priority badge colors
   const priorityColors = {
@@ -31,7 +34,7 @@ export default function KanbanCardContent({ entries, accent }) {
   return (
     <>
       {/* Stat grid — 2x2 */}
-      <div className="grid grid-cols-2 gap-[7px] mb-3">
+      <div className="grid grid-cols-2 gap-1.75 mb-3">
 
         <div className="bg-white/[0.04] rounded-[9px] p-[10px]">
           <div className="text-[9px] text-slate-500 font-semibold uppercase tracking-widest mb-1">To do</div>
