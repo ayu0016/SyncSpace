@@ -14,8 +14,7 @@ import ForgotPassword from './pages/ForgotPassword'
 import ResetPassword from './pages/ResetPassword'
 import LandingPage from './pages/LandingPage.jsx';
 import AddTracker from './pages/AddTracker.jsx';
-
-
+import Profile from './pages/Profile.jsx';
 
 
 const router= createBrowserRouter(
@@ -27,6 +26,7 @@ const router= createBrowserRouter(
         {path:"/forgot-password",element : <ForgotPassword />,},
         {path:"/reset-password",element : <ResetPassword/>,},
         {path:"/add-tracker",element : <AddTracker/>,},
+        {path:"/profile",element:<Profile/>}
         
     ]
 )

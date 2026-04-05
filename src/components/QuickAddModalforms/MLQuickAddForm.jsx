@@ -18,6 +18,8 @@ const RESOURCE_TYPE_OPTIONS = [
   { label: 'Article', value: 'article' },
 ]
 
+const today = () => new Date().toISOString().split('T')[0]
+
 const MLQuickAddForm = ({ widgetId, onSuccess, accentColor }) => {
   const dispatch = useDispatch()
 
@@ -28,30 +30,42 @@ const MLQuickAddForm = ({ widgetId, onSuccess, accentColor }) => {
     formState: { errors, isSubmitting },
   } = useForm({
     defaultValues: {
-      topic: '',
-      source: '',
+      entry_date:    today(),
+      topic:         '',
+      source:        '',
       resource_type: '',
       duration_mins: '',
-      notes: '',
+      notes:         '',
     }
   })
 
   const onSubmit = async (data) => {
     // YOUR LOGIC:
     // const payload = {
-    //   topic: data.topic,
-    //   source: data.source,
+    //   topic:         data.topic,
+    //   source:        data.source,
     //   resource_type: data.resource_type,
     //   duration_mins: Number(data.duration_mins),
-    //   notes: data.notes || null,
+    //   notes:         data.notes || null,
     // }
-    // const entry = await entriesService.createEntry(widgetId, payload)
+    // const entry = await entriesService.createEntry(widgetId, payload, data.entry_date)
     // dispatch(addEntry(entry))
     onSuccess()
   }
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
+
+      {/* Date — allows backdating missed entries */}
+      <Input
+        label="Date"
+        type="date"
+        error={errors.entry_date}
+        {...register('entry_date', {
+          required: { value: true, message: 'Date is required' },
+          max: { value: today(), message: 'Cannot log future entries' },
+        })}
+      />
 
       <Input
         label="Topic"

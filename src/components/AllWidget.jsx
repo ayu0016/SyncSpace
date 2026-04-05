@@ -1,11 +1,11 @@
 // Dashboard.jsx — how to use all of this together
-import WidgetCard from './components/widgets/WidgetCard'
-import DSACardContent from './components/widgets/dsa/DSACardContent'
-import GymCardContent from './components/widgets/gym/GymCardContent'
-import MLCardContent from './components/widgets/ml/MLCardContent'
-import KanbanCardContent from './components/widgets/kanban/KanbanCardContent'
+import WidgetCard from './widgets/WidgetCard'
+import DSACardContent from './widgets/dsa/DsaCardContent'
+import GymCardContent from './widgets/gym/GymCardContent'
+import MLCardContent from './widgets/ml/MLCardContent'
+import KanbanCardContent from './widgets/kanban/KanbanCardContent'
 import { useSelector } from 'react-redux'
-import customCardContent from './components/widgets/custom/CustomCardContent'
+import customCardContent from './widgets/custom/CustomCardContent'
 
 const WIDGET_MAP = {
   dsa:    { Component: DSACardContent,    buttonLabel: '+ Log Problem'  },

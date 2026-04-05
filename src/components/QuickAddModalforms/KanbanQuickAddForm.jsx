@@ -23,8 +23,10 @@ const PRIORITY_OPTIONS = [
   { label: 'High',   value: 'high',   dot: '#ef4444' },
 ]
 
+const today = () => new Date().toISOString().split('T')[0]
+
 const TagChipInput = ({ tags, setTags }) => {
-  const [input, setInput] = useState('')
+  const [input, setInput]               = useState('')
   const [duplicateIndex, setDuplicateIndex] = useState(null)
   const inputRef = useRef(null)
 
@@ -50,9 +52,9 @@ const TagChipInput = ({ tags, setTags }) => {
       <style>{`
         @keyframes chipShake {
           0%, 100% { transform: translateX(0); }
-          25% { transform: translateX(-4px); }
-          50% { transform: translateX(4px); }
-          75% { transform: translateX(-4px); }
+          25%       { transform: translateX(-4px); }
+          50%       { transform: translateX(4px); }
+          75%       { transform: translateX(-4px); }
         }
         .chip-shake { animation: chipShake 0.35s cubic-bezier(.36,.07,.19,.97) both; }
       `}</style>
@@ -101,30 +103,42 @@ const KanbanQuickAddForm = ({ widgetId, onSuccess, accentColor }) => {
     formState: { errors, isSubmitting },
   } = useForm({
     defaultValues: {
-      title: '',
-      status: '',
-      priority: '',
-      due_date: '',
+      entry_date: today(),
+      title:      '',
+      status:     '',
+      priority:   '',
+      due_date:   '',
     }
   })
 
   const onSubmit = async (data) => {
     // YOUR LOGIC:
     // const payload = {
-    //   task_id: crypto.randomUUID(),
-    //   title: data.title,
-    //   status: data.status,
+    //   task_id:  crypto.randomUUID(),
+    //   title:    data.title,
+    //   status:   data.status,
     //   priority: data.priority,
     //   due_date: data.due_date || null,
-    //   tags: tags,
+    //   tags:     tags,
     // }
-    // const entry = await entriesService.upsertEntry(widgetId, payload)
+    // const entry = await entriesService.upsertEntry(widgetId, payload, data.entry_date)
     // dispatch(addEntry(entry))
     onSuccess()
   }
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
+
+      {/* Date — allows backdating missed entries */}
+      <Input
+        label="Date"
+        type="date"
+        error={errors.entry_date}
+        {...register('entry_date', {
+          required: { value: true, message: 'Date is required' },
+          max: { value: today(), message: 'Cannot log future entries' },
+        })}
+      />
 
       <Input
         label="Task Title"

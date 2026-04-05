@@ -11,41 +11,45 @@ import Button from '../ui/Button'
 
 const TABS = ['Workout', 'Diet']
 
+const today = () => new Date().toISOString().split('T')[0]
+
 const GymQuickAddForm = ({ widgetId, onSuccess, accentColor }) => {
   const dispatch = useDispatch()
   const [activeTab, setActiveTab] = useState('Workout')
 
   const workoutForm = useForm({
     defaultValues: {
+      entry_date:    today(),
       exercise_name: '',
-      workout_type: '',
-      sets: '',
-      reps: '',
-      weight_kg: '',
-      notes: '',
+      workout_type:  '',
+      sets:          '',
+      reps:          '',
+      weight_kg:     '',
+      notes:         '',
     }
   })
 
   const dietForm = useForm({
     defaultValues: {
-      calories: '',
-      protein_g: '',
-      water_ml: '',
+      entry_date: today(),
+      calories:   '',
+      protein_g:  '',
+      water_ml:   '',
     }
   })
 
   const onSubmitWorkout = async (data) => {
     // YOUR LOGIC:
     // const payload = {
-    //   entry_type: 'workout',
+    //   entry_type:    'workout',
     //   exercise_name: data.exercise_name,
-    //   workout_type: data.workout_type,
-    //   sets: Number(data.sets),
-    //   reps: Number(data.reps),
-    //   weight_kg: data.weight_kg ? Number(data.weight_kg) : null,
-    //   notes: data.notes || null,
+    //   workout_type:  data.workout_type,
+    //   sets:          Number(data.sets),
+    //   reps:          Number(data.reps),
+    //   weight_kg:     data.weight_kg ? Number(data.weight_kg) : null,
+    //   notes:         data.notes || null,
     // }
-    // const entry = await entriesService.createEntry(widgetId, payload)
+    // const entry = await entriesService.createEntry(widgetId, payload, data.entry_date)
     // dispatch(addEntry(entry))
     onSuccess()
   }
@@ -54,11 +58,11 @@ const GymQuickAddForm = ({ widgetId, onSuccess, accentColor }) => {
     // YOUR LOGIC:
     // const payload = {
     //   entry_type: 'diet',
-    //   calories: Number(data.calories),
-    //   protein_g: Number(data.protein_g),
-    //   water_ml: Number(data.water_ml),
+    //   calories:   Number(data.calories),
+    //   protein_g:  Number(data.protein_g),
+    //   water_ml:   Number(data.water_ml),
     // }
-    // const entry = await entriesService.createEntry(widgetId, payload)
+    // const entry = await entriesService.createEntry(widgetId, payload, data.entry_date)
     // dispatch(addEntry(entry))
     onSuccess()
   }
@@ -98,6 +102,17 @@ const GymQuickAddForm = ({ widgetId, onSuccess, accentColor }) => {
           onSubmit={workoutForm.handleSubmit(onSubmitWorkout)}
           className="flex flex-col gap-4 animate-in fade-in slide-in-from-bottom-2 duration-300"
         >
+          {/* Date — allows backdating missed entries */}
+          <Input
+            label="Date"
+            type="date"
+            error={workoutForm.formState.errors.entry_date}
+            {...workoutForm.register('entry_date', {
+              required: { value: true, message: 'Date is required' },
+              max: { value: today(), message: 'Cannot log future entries' },
+            })}
+          />
+
           <Input
             label="Exercise Name"
             placeholder="e.g. Bench Press, Pull-ups"
@@ -174,6 +189,17 @@ const GymQuickAddForm = ({ widgetId, onSuccess, accentColor }) => {
           onSubmit={dietForm.handleSubmit(onSubmitDiet)}
           className="flex flex-col gap-4 animate-in fade-in slide-in-from-bottom-2 duration-300"
         >
+          {/* Date — allows backdating missed entries */}
+          <Input
+            label="Date"
+            type="date"
+            error={dietForm.formState.errors.entry_date}
+            {...dietForm.register('entry_date', {
+              required: { value: true, message: 'Date is required' },
+              max: { value: today(), message: 'Cannot log future entries' },
+            })}
+          />
+
           <Input
             label="Calories"
             type="number"
