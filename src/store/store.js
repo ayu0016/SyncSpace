@@ -1,16 +1,25 @@
-import { configureStore } from "@reduxjs/toolkit"
-import authReducer from "./authSlice"
-import widgetReducer from "./widgetSlice"
-import todoReducer from "./todoSlice"
-import entriesReducer from "./entriesSlice"
-import uiReducer from "./uiSlice"
+import { configureStore, combineReducers } from '@reduxjs/toolkit'
+import authReducer from './authSlice'
+import todosReducer from './todoSlice'
+import widgetsReducer from './widgetSlice'
+import entriesReducer from './entriesSlice'
+import uiReducer from './uiSlice'
 
-export const store = configureStore({
-  reducer: {
+const appReducer = combineReducers({
     auth: authReducer,
-    widgets: widgetReducer,
-    todos: todoReducer,
+    todos: todosReducer,
+    widgets: widgetsReducer,
     entries: entriesReducer,
-    ui: uiReducer
-  }
+    ui: uiReducer,
 })
+
+const rootReducer = (state, action) => {
+    if (action.type === 'RESET_ALL') {
+        state = undefined
+    }
+    return appReducer(state, action)
+}
+
+const store = configureStore({ reducer: rootReducer })
+
+export default store

@@ -40,6 +40,13 @@ const QuickAddModal = () => {
 
   const isOpen = !!modalType
   const config = MODAL_CONFIG[modalType] || {}
+  /*
+    for custom{
+        title widget.name
+        icon=widgt.icon
+        accent=widget.color
+    }
+  */ 
   const IconComponent = config.icon
 
   useEffect(() => {
@@ -58,8 +65,6 @@ const QuickAddModal = () => {
   }, [isOpen])
 
   const handleClose = () => dispatch(closeModal())
-
-  const handleSubmitSuccess = () => handleClose()
 
   if (!isRendered) return null
 
@@ -140,6 +145,7 @@ const QuickAddModal = () => {
             </h2>
           </div>
 
+          // close button
           <button
             onClick={handleClose}
             className="w-8 h-8 rounded-full flex items-center justify-center text-white/40 hover:text-white hover:bg-white/8 active:scale-95 transition-all duration-200"
@@ -152,16 +158,16 @@ const QuickAddModal = () => {
         <div className="flex-1 overflow-y-auto px-7 py-6 modal-scroll pb-10 sm:pb-6">
           <div className={`modal-form-fields flex flex-col gap-4 ${isVisible ? 'show' : ''}`}>
             {modalType === 'dsa' && (
-              <DSAQuickAddForm widgetId={activeWidgetId} onSuccess={handleSubmitSuccess} accentColor={config.accent} />
+              <DSAQuickAddForm widgetId={activeWidgetId}   accentColor={config.accent} />
             )}
             {modalType === 'gym' && (
-              <GymQuickAddForm widgetId={activeWidgetId} onSuccess={handleSubmitSuccess} accentColor={config.accent} />
+              <GymQuickAddForm widgetId={activeWidgetId}   accentColor={config.accent} />
             )}
             {modalType === 'ml' && (
-              <MLQuickAddForm widgetId={activeWidgetId} onSuccess={handleSubmitSuccess} accentColor={config.accent} />
+              <MLQuickAddForm widgetId={activeWidgetId}   accentColor={config.accent} />
             )}
             {modalType === 'kanban' && (
-              <KanbanQuickAddForm widgetId={activeWidgetId} onSuccess={handleSubmitSuccess} accentColor={config.accent} />
+              <KanbanQuickAddForm widgetId={activeWidgetId}   accentColor={config.accent} />
             )}
           </div>
         </div>

@@ -31,7 +31,6 @@ export default function AllWidget() {
             key={widget.id}
             widget={widget}
             buttonLabel={config.buttonLabel}
-            onLogClick={() => {/* TODO: dispatch openModal(widget) */}}
           >
             <Component
               widget={widget}

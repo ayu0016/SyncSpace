@@ -33,7 +33,7 @@ export default function AddTracker() {
 
   const isConfirmEnabled =
     (activeTab === 'built-in' && selectedCard !== null) ||
-    (activeTab === 'custom' && customName.trim() !== '')
+    (activeTab === 'custom' && customName.trim() !== '')//custom wala chod sambhal lena bhai
 
   const handleTabSwitch = (tab) => {
     if (tab === activeTab) return

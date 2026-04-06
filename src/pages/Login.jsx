@@ -4,6 +4,7 @@ import { Link, useNavigate } from "react-router-dom"
 import { useForm } from "react-hook-form"
 import { authService } from "../supabase/auth"
 import { useState } from "react"
+import { useDispatch } from "react-redux"
 
 export default function Login() {
 
@@ -11,15 +12,19 @@ export default function Login() {
   const [showPassword, setShowPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const navigate = useNavigate()
+  const dispatch=useDispatch()
 
   const { register, handleSubmit, formState: { errors } } = useForm()
+
 
   const onSubmit = async (data) => {
     setIsLoading(true)
     setAuthError(null)
     try {
-      await authService.login(data)
-      navigate("/")
+      const user =await authService.login(data)
+      if (user) {
+        navigate('/dashboard')        
+      }
     } catch (error) {
       setAuthError(error.message)
     } finally {

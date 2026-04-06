@@ -11,7 +11,7 @@ const sortTodos = (todos) =>
 export default function TodoPanel({ isMobile = false }) {
   const dispatch = useDispatch()
   const todos = useSelector((state) => state.todos.todos)
-  const user = useSelector((state) => state.auth.user)
+  const user = useSelector((state) => state.auth.userData)
 
 
   
@@ -21,17 +21,21 @@ export default function TodoPanel({ isMobile = false }) {
   const sortedTodos = sortTodos(todos)
 
   const handleAdd = async () => {
+    if (!user?.id) {
+        return
+    }
     try {
         const text = inputValue.trim()
         if (!text) return
-        const newData= await todosService.addTodo(user.id,text)
-        if(newData) dispatch(addTodo(newData))
-        setInputValue('')
+        const newData = await todosService.addTodo(user?.id, text)
+        if (newData) {
+            dispatch(addTodo(newData))
+            setInputValue('')
+        }
     } catch (error) {
-        console.log("input of text not good",error)
-        
+        console.log("error:", error)
     }
-  }
+}
 
   const handleKeyDown = (e) => {
     if (e.key === 'Enter') handleAdd()

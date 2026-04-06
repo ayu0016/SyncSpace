@@ -1,27 +1,24 @@
 import { useEffect } from 'react'
 import { useDispatch } from 'react-redux'
+import { Outlet } from 'react-router-dom'
 import { login, logout } from './store/authSlice'
 import { authService } from './supabase/auth'
-import { todosService } from './supabase/todoServices'
 
 export default function App() {
   const dispatch = useDispatch()
 
   useEffect(() => {
-
-    // Check existing session on load
     authService.getSession().then(({ data: { session } }) => {
       if (session?.user) {
         dispatch(login(session.user))
       }
     })
 
-    // Listen for auth changes
     const { data: { subscription } } = authService.onAuthStateChange(
-      (_event, session) => {
-        if (session?.user) {
+      (event, session) => {
+        if (event === 'SIGNED_IN') {
           dispatch(login(session.user))
-        } else {
+        } else if (event === 'SIGNED_OUT') {
           dispatch(logout())
         }
       }
@@ -29,7 +26,6 @@ export default function App() {
 
     return () => subscription.unsubscribe()
   }, [dispatch])
- 
 
-  return <Dashboard />
+  return <Outlet />  // ✅ renders whatever child route is active
 }

@@ -3,12 +3,12 @@ import { useForm, Controller } from 'react-hook-form'
 import { useDispatch } from 'react-redux'
 import { Bookmark, Flag } from 'lucide-react'
 import { closeModal } from '../../store/uiSlice'
-import Input from '../ui/Input'
-import Select from '../ui/Select'
-import Button from '../ui/Button'
+import Input from '../Input'
+import Select from '../Select'
+import Button from '../Button'
 
 // YOUR LOGIC: import entries service + redux action
-// import { entriesService } from '../../services/entriesService'
+import { entriesService } from '../../supabase/entryServices'
 // import { addEntry } from '../../store/entriesSlice'
 
 const DIFFICULTY_OPTIONS = [
@@ -29,7 +29,7 @@ const PLATFORM_OPTIONS = [
 
 const today = () => new Date().toISOString().split('T')[0]
 
-const DSAQuickAddForm = ({ widgetId, onSuccess, accentColor }) => {
+const DSAQuickAddForm = ({ widgetId, accentColor }) => {
   const dispatch = useDispatch()
   const [isBookmarked, setIsBookmarked] = useState(false)
   const [isFlagged, setIsFlagged]       = useState(false)
@@ -63,7 +63,7 @@ const DSAQuickAddForm = ({ widgetId, onSuccess, accentColor }) => {
     // }
     // const entry = await entriesService.createEntry(widgetId, payload, data.entry_date)
     // dispatch(addEntry(entry))
-    onSuccess()
+    //dispatch(closemodal())
   }
 
   return (
