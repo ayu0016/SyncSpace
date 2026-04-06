@@ -7,20 +7,24 @@ import { useSelector,useDispatch } from 'react-redux'
 import { CloseTodo } from '../store/uiSlice'
 import { todosService } from '../supabase/todoServices'
 import { setTodos } from '../store/todoSlice'
+import { widgetService } from '../supabase/widgetServices'
+import { entryService } from '../supabase/entryServices'
+import { setWidgets } from '../store/widgetSlice'
+import { setEntries } from '../store/entriesSlice'
 
 export default function Dashboard() {
     const isTodoOpen= useSelector((state)=>state.ui.isTodoOpen)
     const dispatch=useDispatch()
     // 🔴 Replace with Redux selector later
     const activeTodoCount = 3
-    const userData= useSelector((state)=>state.auth.user)
+    const userData= useSelector((state)=>state.auth.userData)
     const fetchAll = useCallback(async () => {
     if (!userData) return
     try {
         const [todoData, widgetData, entryData] = await Promise.all([
         todosService.fetchTodos(userData.id),
-        widgetsService.fetchWidgets(userData.id),
-        entriesService.fetchEntries(userData.id),
+        widgetService.getWidgets(userData.id),
+        entryService.getAllEntries(userData.id),
         ])
         if (todoData)   dispatch(setTodos(todoData))
         if (widgetData) dispatch(setWidgets(widgetData))

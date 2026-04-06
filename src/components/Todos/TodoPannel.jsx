@@ -63,7 +63,7 @@ export default function TodoPanel({ isMobile = false }) {
 
   return (
     <div
-      className={`flex flex-col h-full ${isMobile ? 'rounded-t-2xl' : 'rounded-xl'}`}
+      className={`flex flex-col w-full h-full ${isMobile ? 'rounded-t-2xl' : 'rounded-xl'}`}
       style={{
         background: 'rgba(14, 14, 19, 0.95)',
         backdropFilter: 'blur(12px)',

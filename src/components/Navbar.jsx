@@ -83,24 +83,27 @@ export default function Navbar() {
   }
 
   return (
-    <nav className="navbar-glass fixed top-0 left-0 right-0 z-50 h-16 flex items-center px-4 sm:px-6 justify-between">
+    <nav 
+    className="navbar-glass sticky top-0 left-0 right-0 z-50 w-full h-16 flex items-center px-4 sm:px-6 justify-between bg-[#1b1b20]/80 backdrop-blur-xl border-b border-white/5 shadow-[0_8px_32px_0_rgba(0,0,0,0.3)]"
+    >
 
       {/* ── LEFT: SyncSpace Logo ── */}
       <button
         onClick={handleLogoClick}
-        className="flex flex-col items-start group focus:outline-none shrink-0"
+        className="flex flex-col items-start group focus:outline-none shrink-0 "
       >
         <span
-          className="text-primary-container font-bold text-xl tracking-wide leading-none"
+          className="text-primary-container font-bold text-2xl tracking-wide leading-none glow-text"
           style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
         >
           SyncSpace
         </span>
         {/* Blue underline accent — brightens on hover */}
         <span
-          className="block h-0.5 w-full bg-primary-container rounded-full mt-0.75
-            opacity-70 group-hover:opacity-100 transition-opacity duration-200"
+         className="mt-1 h-px w-12 bg-primary-container mx-auto"
+
         />
+                  
       </button>
 
       {/* ── CENTER: Welcome message ──
