@@ -3,7 +3,7 @@ import { supabase } from './supabase'
 class EntryService {
 
   // ── ADD A NEW ENTRY ────────────────────────────────
-  async addEntry(widgetId, userId, payload) {
+  async addEntry(widgetId, userId, payload,date) {
     const { data, error } = await supabase
       .from('entries')
       .insert({

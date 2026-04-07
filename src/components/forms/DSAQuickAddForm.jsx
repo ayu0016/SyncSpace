@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { useForm, Controller } from 'react-hook-form'
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { Bookmark, Flag } from 'lucide-react'
 import { closeModal } from '../../store/uiSlice'
 import Input from '../Input'
@@ -9,7 +9,7 @@ import Button from '../Button'
 
 // YOUR LOGIC: import entries service + redux action
 import { entryService } from '../../supabase/entryServices'
-// import { addEntry } from '../../store/entriesSlice'
+import { addEntry } from '../../store/entriesSlice'
 
 const DIFFICULTY_OPTIONS = [
   { label: 'Easy',   value: 'easy',   dot: '#10b981' },
@@ -28,6 +28,7 @@ const PLATFORM_OPTIONS = [
 ]
 
 const today = () => new Date().toISOString().split('T')[0]
+const user= useSelector(state.auth.userDate)
 
 const DSAQuickAddForm = ({ widgetId, accentColor }) => {
   const dispatch = useDispatch()
@@ -47,23 +48,25 @@ const DSAQuickAddForm = ({ widgetId, accentColor }) => {
       platform: '',
       notes: '',
       entry_date: today(),
+      is_Bookmarked:false,
+      is_Flagged:false
     }
   })
 
   const onSubmit = async (data) => {
     // YOUR LOGIC:
-    // const payload = {
-    //   problem_title:  data.problem_title || null,
-    //   difficulty:     data.difficulty,
-    //   topic:          data.topic,
-    //   platform:       data.platform,
-    //   notes:          data.notes || null,
-    //   is_bookmarked:  isBookmarked,
-    //   is_flagged:     isFlagged,
-    // }
-    // const entry = await entriesService.createEntry(widgetId, payload, data.entry_date)
-    // dispatch(addEntry(entry))
-    //dispatch(closemodal())
+    const payload = {
+      problem_title:  data.problem_title || null,
+      difficulty:     data.difficulty,
+      topic:          data.topic,
+      platform:       data.platform,
+      notes:          data.notes || null,
+      is_bookmarked:  isBookmarked,
+      is_flagged:     isFlagged,
+    }
+    const entry = await entryService.createEntry(widgetId,user.id, payload, data.entry_date)
+    dispatch(addEntry(entry))
+    dispatch(closeModal())
   }
 
   return (
