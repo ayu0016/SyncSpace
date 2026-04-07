@@ -13,7 +13,7 @@ import ModalFooter from '../components/AddTracker/ModalFooter'
 export default function AddTracker() {
   const dispatch = useDispatch()
   const navigate = useNavigate()
-  const user = useSelector(state => state.auth.user)
+  const user = useSelector(state => state.auth.userData)
   const widgets = useSelector(state => state.widgets.widgets)
 
   // Tab state
@@ -63,7 +63,8 @@ export default function AddTracker() {
           name: tracker.name,
           icon: null,
           color: tracker.color,
-          position: widgets.length + 1
+          position: widgets.length + 1,
+          config:null
         }
       } else {
         payload = {
@@ -72,7 +73,8 @@ export default function AddTracker() {
           name: customName.trim(),
           icon: customIcon,
           color: customColor,
-          position: widgets.length + 1
+          position: widgets.length + 1,
+          config:null
         }
       }
 

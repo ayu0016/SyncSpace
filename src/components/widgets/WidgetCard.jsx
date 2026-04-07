@@ -19,7 +19,9 @@ export default function WidgetCard({ widget, children, buttonLabel }) {
         navigate(`/${widget.name}`)
     )
     const onLogClick=(e) =>{
-        e.stopPropogation()
+        e.stopPropagation()
+        console.log('widget type:', widget.type)
+        console.log('widget id:', widget.id)
         dispatch(openModal(widget.type))
         dispatch(setActiveWidget(widget.id))
 

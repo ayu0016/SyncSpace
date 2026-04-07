@@ -11,6 +11,7 @@ import { widgetService } from '../supabase/widgetServices'
 import { entryService } from '../supabase/entryServices'
 import { setWidgets } from '../store/widgetSlice'
 import { setEntries } from '../store/entriesSlice'
+import QuickAddModal from '../components/QuickAddModal'
 
 export default function Dashboard() {
     const isTodoOpen= useSelector((state)=>state.ui.isTodoOpen)
@@ -43,6 +44,7 @@ export default function Dashboard() {
 
         {/* Navbar */}
         <Navbar />
+        <QuickAddModal/>
 
         {/* Main Layout */}
         <div className="flex flex-1 flex-col lg:flex-row overflow-hidden">

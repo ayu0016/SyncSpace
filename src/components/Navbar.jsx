@@ -65,9 +65,8 @@ export default function Navbar() {
   // uiSlice.modalType will be set to "addWidget"
   // Your modal renderer should check: modalType === "addWidget"
   function handleAddTracker() {
-    dispatch(openModal("addWidget"));
+    navigate('/add-tracker')
   }
-
   // ── Profile → navigate to /profile page ──
   // 📌 ROUTE CHECK: make sure /profile exists in your router
   function handleProfile() {
@@ -84,7 +83,7 @@ export default function Navbar() {
 
   return (
     <nav 
-    className="navbar-glass sticky top-0 left-0 right-0 z-50 w-full h-16 flex items-center px-4 sm:px-6 justify-between bg-[#1b1b20]/80 backdrop-blur-xl border-b border-white/5 shadow-[0_8px_32px_0_rgba(0,0,0,0.3)]"
+    className="navbar-glass sticky top-0 left-0 right-0 z-50 w-full h-13 flex items-center px-4 sm:px-6 justify-between bg-[#1b1b20]/80 backdrop-blur-xl border-b border-white/5 shadow-[0_8px_32px_0_rgba(0,0,0,0.3)]"
     >
 
       {/* ── LEFT: SyncSpace Logo ── */}

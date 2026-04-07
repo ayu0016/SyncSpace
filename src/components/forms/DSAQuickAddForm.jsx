@@ -8,7 +8,7 @@ import Select from '../Select'
 import Button from '../Button'
 
 // YOUR LOGIC: import entries service + redux action
-import { entriesService } from '../../supabase/entryServices'
+import { entryService } from '../../supabase/entryServices'
 // import { addEntry } from '../../store/entriesSlice'
 
 const DIFFICULTY_OPTIONS = [

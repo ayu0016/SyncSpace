@@ -2,8 +2,8 @@ import React, { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useDispatch } from 'react-redux'
 import { closeModal } from '../../store/uiSlice'
-import Input from '../ui/Input'
-import Button from '../ui/Button'
+import Input from '../Input'
+import Button from '../Button'
 
 // YOUR LOGIC: import entries service + redux action
 // import { entriesService } from '../../services/entriesService'

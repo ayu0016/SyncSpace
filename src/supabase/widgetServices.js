@@ -14,7 +14,7 @@ class WidgetService {
   }
 
   // ── CREATE A NEW WIDGET ────────────────────────────
-  async createWidget(userId, type, name, icon, color) {
+  async createWidget({userId, type, name, icon, color,config}) {
     // first count existing widgets to set position
     const { count, error: countError } = await supabase
       .from('widgets')
@@ -30,7 +30,8 @@ class WidgetService {
         name,
         icon,
         color,
-        position: count + 1
+        position: count + 1,
+        config
       })
       .select()
       .single()

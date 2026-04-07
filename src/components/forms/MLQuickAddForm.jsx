@@ -2,9 +2,9 @@ import React from 'react'
 import { useForm, Controller } from 'react-hook-form'
 import { useDispatch } from 'react-redux'
 import { closeModal } from '../../store/uiSlice'
-import Input from '../ui/Input'
-import Select from '../ui/Select'
-import Button from '../ui/Button'
+import Input from '../Input'
+import Select from '../Select'
+import Button from '../Button'
 
 // YOUR LOGIC: import entries service + redux action
 // import { entriesService } from '../../services/entriesService'
