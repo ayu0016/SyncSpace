@@ -6,11 +6,10 @@ import { closeModal } from '../../store/uiSlice'
 import Input from '../Input'
 import Select from '../Select'
 import Button from '../Button'
-
-// YOUR LOGIC: import entries service + redux action
 import { entryService } from '../../supabase/entryServices'
 import { addEntry } from '../../store/entriesSlice'
 
+// Helper constants (outside to prevent re-creation on render)
 const DIFFICULTY_OPTIONS = [
   { label: 'Easy',   value: 'easy',   dot: '#10b981' },
   { label: 'Medium', value: 'medium', dot: '#eab308' },
@@ -28,12 +27,16 @@ const PLATFORM_OPTIONS = [
 ]
 
 const today = () => new Date().toISOString().split('T')[0]
-const user= useSelector(state.auth.userDate)
 
 const DSAQuickAddForm = ({ widgetId, accentColor }) => {
   const dispatch = useDispatch()
+  
+  // FIX 1: Moved inside the component
+  const user = useSelector((state) => state.auth.userData)
+
+  // Keeping your familiar useState logic
   const [isBookmarked, setIsBookmarked] = useState(false)
-  const [isFlagged, setIsFlagged]       = useState(false)
+  const [isFlagged, setIsFlagged] = useState(false)
 
   const {
     register,
@@ -48,41 +51,50 @@ const DSAQuickAddForm = ({ widgetId, accentColor }) => {
       platform: '',
       notes: '',
       entry_date: today(),
-      is_Bookmarked:false,
-      is_Flagged:false
     }
   })
 
   const onSubmit = async (data) => {
-    // YOUR LOGIC:
-    const payload = {
-      problem_title:  data.problem_title || null,
-      difficulty:     data.difficulty,
-      topic:          data.topic,
-      platform:       data.platform,
-      notes:          data.notes || null,
-      is_bookmarked:  isBookmarked,
-      is_flagged:     isFlagged,
+    try {
+      // Safety check for the user
+      if (!user?.id) return;
+
+      // Manually merging form data with your local state
+      const payload = {
+        problem_title: data.problem_title || null,
+        difficulty:    data.difficulty,
+        topic:         data.topic,
+        platform:      data.platform,
+        notes:         data.notes || null,
+        is_bookmarked: isBookmarked, // from useState
+        is_flagged:    isFlagged,    // from useState
+      }
+
+      const entry = await entryService.createEntry(widgetId, user.id, payload, data.entry_date)
+      
+      if (entry) {
+        dispatch(addEntry(entry))
+        dispatch(closeModal())
+      }
+    } catch (error) {
+      console.error("Error creating entry:", error)
     }
-    const entry = await entryService.createEntry(widgetId,user.id, payload, data.entry_date)
-    dispatch(addEntry(entry))
-    dispatch(closeModal())
   }
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
-
-      {/* Date — allows backdating missed entries */}
+      {/* Date */}
       <Input
         label="Date"
         type="date"
         error={errors.entry_date}
         {...register('entry_date', {
-          required: { value: true, message: 'Date is required' },
+          required: 'Date is required',
           max: { value: today(), message: 'Cannot log future entries' },
         })}
       />
 
+      {/* Problem Title */}
       <Input
         label="Problem Title"
         placeholder="e.g. Two Sum"
@@ -90,10 +102,11 @@ const DSAQuickAddForm = ({ widgetId, accentColor }) => {
         {...register('problem_title')}
       />
 
+      {/* Difficulty */}
       <Controller
         name="difficulty"
         control={control}
-        rules={{ required: { value: true, message: 'Difficulty is required' } }}
+        rules={{ required: 'Difficulty is required' }}
         render={({ field }) => (
           <Select
             label="Difficulty"
@@ -105,19 +118,19 @@ const DSAQuickAddForm = ({ widgetId, accentColor }) => {
         )}
       />
 
+      {/* Topic */}
       <Input
         label="Topic"
         placeholder="e.g. Arrays, Dynamic Programming"
         error={errors.topic}
-        {...register('topic', {
-          required: { value: true, message: 'Topic is required' }
-        })}
+        {...register('topic', { required: 'Topic is required' })}
       />
 
+      {/* Platform */}
       <Controller
         name="platform"
         control={control}
-        rules={{ required: { value: true, message: 'Platform is required' } }}
+        rules={{ required: 'Platform is required' }}
         render={({ field }) => (
           <Select
             label="Platform"
@@ -129,64 +142,45 @@ const DSAQuickAddForm = ({ widgetId, accentColor }) => {
         )}
       />
 
+      {/* Notes */}
       <div className="space-y-2 w-full">
         <label className="block text-[10px] font-bold tracking-[0.15em] text-outline-variant uppercase ml-1">
-          Notes <span className="text-outline-variant/40 font-normal normal-case tracking-normal">(optional)</span>
+          Notes <span className="text-outline-variant/40 font-normal (optional)"></span>
         </label>
         <textarea
-          placeholder="Any observations or approach notes..."
-          className="w-full bg-surface-container-lowest border border-outline-variant/20 rounded-xl px-4 py-3 text-on-surface text-sm outline-none placeholder:text-outline-variant/40 focus:ring-1 focus:ring-primary-container focus:border-primary-container transition-all duration-200 min-h-20 resize-y"
+          placeholder="Any observations..."
+          className="w-full bg-surface-container-lowest border border-outline-variant/20 rounded-xl px-4 py-3 text-on-surface text-sm outline-none focus:ring-1 focus:ring-primary-container min-h-20"
           {...register('notes')}
         />
       </div>
 
-      {/* Footer: bookmark + flag toggles on left, cancel + submit on right */}
-      <div className="flex items-center justify-between gap-3 pt-3 mt-1 border-t border-white/[0.07]">
-
-        {/* Signal toggles */}
+      {/* Footer */}
+      <div className="flex items-center justify-between gap-3 pt-3 border-t border-white/[0.07]">
         <div className="flex items-center gap-2">
-
-          {/* Bookmark toggle */}
+          
           <button
             type="button"
             onClick={() => setIsBookmarked(prev => !prev)}
-            title={isBookmarked ? 'Bookmarked — great pattern' : 'Bookmark this problem'}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-medium transition-all duration-200 ${
-              isBookmarked
-                ? 'bg-[#4a9eed]/10 border-[#4a9eed]/30 text-[#4a9eed]'
-                : 'bg-transparent border-white/[0.08] text-white/30 hover:text-white/60 hover:border-white/20'
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-medium transition-all ${
+              isBookmarked ? 'bg-[#4a9eed]/10 border-[#4a9eed]/30 text-[#4a9eed]' : 'bg-transparent border-white/[0.08] text-white/30'
             }`}
           >
-            <Bookmark
-              size={13}
-              fill={isBookmarked ? '#4a9eed' : 'none'}
-              stroke={isBookmarked ? '#4a9eed' : 'currentColor'}
-            />
+            <Bookmark size={13} fill={isBookmarked ? '#4a9eed' : 'none'} stroke={isBookmarked ? '#4a9eed' : 'currentColor'} />
             <span>Bookmark</span>
           </button>
 
-          {/* Flag toggle */}
           <button
             type="button"
             onClick={() => setIsFlagged(prev => !prev)}
-            title={isFlagged ? 'Flagged — will appear in graveyard' : 'Flag — I struggled here'}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-medium transition-all duration-200 ${
-              isFlagged
-                ? 'bg-[#ef4444]/10 border-[#ef4444]/30 text-[#ef4444]'
-                : 'bg-transparent border-white/[0.08] text-white/30 hover:text-white/60 hover:border-white/20'
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-medium transition-all ${
+              isFlagged ? 'bg-[#ef4444]/10 border-[#ef4444]/30 text-[#ef4444]' : 'bg-transparent border-white/[0.08] text-white/30'
             }`}
           >
-            <Flag
-              size={13}
-              fill={isFlagged ? '#ef4444' : 'none'}
-              stroke={isFlagged ? '#ef4444' : 'currentColor'}
-            />
+            <Flag size={13} fill={isFlagged ? '#ef4444' : 'none'} stroke={isFlagged ? '#ef4444' : 'currentColor'} />
             <span>Flag</span>
           </button>
-
         </div>
 
-        {/* Action buttons */}
         <div className="flex items-center gap-3">
           <Button type="button" variant="outline" onClick={() => dispatch(closeModal())}>
             Cancel
@@ -195,9 +189,7 @@ const DSAQuickAddForm = ({ widgetId, accentColor }) => {
             {isSubmitting ? 'Logging...' : 'Log Problem'}
           </Button>
         </div>
-
       </div>
-
     </form>
   )
 }

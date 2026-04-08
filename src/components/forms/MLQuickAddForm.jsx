@@ -57,7 +57,7 @@ const ZoneLabel = ({ children }) => (
     <span className="text-[10px] font-bold tracking-[0.15em] text-outline-variant/50 uppercase whitespace-nowrap">
       {children}
     </span>
-    <div className="flex-1 h-px bg-white/[0.05]" />
+    <div className="flex-1 h-px bg-white/5" />
   </div>
 )
 
