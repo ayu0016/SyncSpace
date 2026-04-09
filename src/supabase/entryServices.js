@@ -10,7 +10,7 @@ class EntryService {
         widget_id: widgetId,
         user_id: userId,
         payload,
-        date: new Date().toISOString().split('T')[0] // today's date
+        date: date ?? new Date().toISOString().split('T')[0] // today's date
       })
       .select()
       .single()
