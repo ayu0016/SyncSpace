@@ -7,9 +7,9 @@ import Input from '../Input'
 import Select from '../Select'
 import Button from '../Button'
 
-// YOUR LOGIC: import entries service + redux action
-// import { entriesService } from '../../services/entriesService'
-// import { addEntry } from '../../store/entriesSlice'
+import { entryService } from '../../supabase/entryServices'
+import { addEntry } from '../../store/entriesSlice'
+
 
 const STATUS_OPTIONS = [
   { label: 'Todo',        value: 'todo'        },
@@ -92,7 +92,7 @@ const TagChipInput = ({ tags, setTags }) => {
   )
 }
 
-const KanbanQuickAddForm = ({ widgetId, onSuccess, accentColor }) => {
+const KanbanQuickAddForm = ({ widgetId, accentColor }) => {
   const dispatch = useDispatch()
   const [tags, setTags] = useState([])
 
@@ -113,17 +113,19 @@ const KanbanQuickAddForm = ({ widgetId, onSuccess, accentColor }) => {
 
   const onSubmit = async (data) => {
     // YOUR LOGIC:
-    // const payload = {
-    //   task_id:  crypto.randomUUID(),
-    //   title:    data.title,
-    //   status:   data.status,
-    //   priority: data.priority,
-    //   due_date: data.due_date || null,
-    //   tags:     tags,
-    // }
-    // const entry = await entriesService.upsertEntry(widgetId, payload, data.entry_date)
-    // dispatch(addEntry(entry))
-    onSuccess()
+    const payload = {
+      task_id:  crypto.randomUUID(),
+      title:    data.title,
+      status:   data.status,
+      priority: data.priority,
+      due_date: data.due_date || null,
+      tags:     tags,
+    }
+    const entry = await entryService.addEntry(widgetId, payload, data.entry_date)
+    if(entry){
+        dispatch(addEntry(entry))
+        dispatch(closeModal)
+    }
   }
 
   return (

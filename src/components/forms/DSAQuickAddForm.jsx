@@ -70,7 +70,7 @@ const DSAQuickAddForm = ({ widgetId, accentColor }) => {
         is_flagged:    isFlagged,    // from useState
       }
 
-      const entry = await entryService.createEntry(widgetId, user.id, payload, data.entry_date)
+      const entry = await entryService.addEntry(widgetId, user.id, payload, data.entry_date)
       
       if (entry) {
         dispatch(addEntry(entry))

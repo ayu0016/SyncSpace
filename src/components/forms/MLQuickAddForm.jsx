@@ -283,7 +283,7 @@ const MLQuickAddForm = ({ widgetId, accentColor = '#8b5cf6' }) => {
       understanding_level: Number(data.understanding_level),
       notes:               data.notes || null,
     }
-    const entry = await entryService.createEntry(widgetId, user.id, payload, data.entry_date)
+    const entry = await entryService.addEntry(widgetId, user.id, payload, data.entry_date)
     dispatch(addEntry(entry))
     dispatch(closeModal())
   }
