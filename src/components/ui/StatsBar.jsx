@@ -3,11 +3,16 @@ import GlassCard from './GlassCard'
 const StatsBar = ({ stats = [] }) => {
   return (
     <GlassCard className="w-full overflow-x-auto no-scrollbar">
-      <div className="flex divide-x divide-white/[0.06]">
+      <div className="flex">
         {stats.map((stat, index) => (
           <div
             key={index}
             className="flex-1 min-w-[130px] py-5 px-4 flex flex-col items-center justify-center text-center hover:bg-white/[0.02] transition-colors duration-200 cursor-default"
+            style={{
+              borderLeft: index !== 0
+                ? '1px solid rgba(255,255,255,0.06)'
+                : 'none'
+            }}
           >
             <span
               className="font-mono font-bold text-[28px] leading-none mb-2"

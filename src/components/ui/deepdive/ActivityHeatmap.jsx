@@ -1,3 +1,4 @@
+import React from 'react'
 import ActivityCalendar from 'react-activity-calendar'
 import { Tooltip } from 'react-tooltip'
 import GlassCard from '../ui/GlassCard'
