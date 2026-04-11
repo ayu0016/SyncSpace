@@ -24,6 +24,7 @@
   /* 🔤 Font */
   --font-sans: "Plus Jakarta Sans", sans-serif;
   --font-display: "Playfair Display", serif;
+  --font-mono: "JetBrains Mono", monospace;
 
   /* 🔲 Border Radius */
   --radius-card: 8px;

@@ -1,4 +1,5 @@
 import { StrictMode } from 'react'
+import '@fontsource/jetbrains-mono'
 import '@fontsource/plus-jakarta-sans';
 import { createRoot } from 'react-dom/client'
 import store from "./store/store.js"
