@@ -1,62 +1,72 @@
 import { useState, useMemo } from 'react'
 import { useParams } from 'react-router-dom'
 import { useDispatch } from 'react-redux'
+import { startOfWeek } from 'date-fns'
 import { openModal, setActiveWidget } from '../../store/uiSlice'
-import { ArrowUp } from 'lucide-react'
-
-// Shared components
-import DeepDiveHeader  from '../../components/deepdive/DeepDiveHeader'
-import ActivityHeatmap from '../../components/deepdive/ActivityHeatmap'
-import RecentLog       from '../../components/deepdive/RecentLog'
-import BubbleChart     from '../../components/deepdive/BubbleChart'
-import GlassCard       from '../../components/ui/GlassCard'
-import SectionLabel    from '../../components/ui/SectionLabel'
-import StatsBar        from '../../components/ui/StatsBar'
-import Sparkline       from '../../components/ui/charts/Sparkline'
-import BarChart        from '../../components/ui/charts/BarChart'
 
 // Hooks
-import useWidgetEntries  from '../../hooks/useWidgetEntries'
+import useWidgetEntries from '../../hooks/useWidgetEntries'
 import useDeepDiveFilter from '../../hooks/useDeepDiveFilter'
 
 // Utils
-import { entriesToHeatmapData }                from '../../utils/heatmapUtils'
-import { calcStreak }                          from '../../utils/streakUtils'
-import { formatRelativeDate, getDaysAgo }      from '../../utils/dateUtils'
-import { format, subDays, startOfWeek, endOfWeek, isWithinInterval, parseISO } from 'date-fns'
+import { calcStreak, calcBestStreak } from '../../utils/streakUtils'
+import { entriesToHeatmapData } from '../../utils/heatmapUtils'
+import { formatRelativeDate, getDaysAgo } from '../../utils/dateUtils'
+
+// Shared components
+import DeepDiveHeader from '../../components/deepdive/DeepDiveHeader'
+import SectionLabel from '../../components/ui/SectionLabel'
+import StatsBar from '../../components/ui/StatsBar'
+import GlassCard from '../../components/ui/GlassCard'
+import ActivityHeatmap from '../../components/deepdive/ActivityHeatmap'
+import BubbleChart from '../../components/deepdive/BubbleChart'
+import RecentLog from '../../components/deepdive/RecentLog'
+import Sparkline from '../../components/ui/charts/Sparkline'
+
+// ─── CONSTANTS ────────────────────────────────────────────────────────────────
 
 const ACCENT = '#8b5cf6'
 
-// ── Session type config ───────────────────────────────────────────────────────
-const SESSION_TYPE_CONFIG = {
-  Theory:   { color: ACCENT,     bg: `${ACCENT}26`        },
-  Practice: { color: '#4a9eed',  bg: 'rgba(74,158,237,0.15)' },
-  Project:  { color: '#22c55e',  bg: 'rgba(34,197,94,0.15)'  },
-  Revision: { color: '#f59e0b',  bg: 'rgba(245,158,11,0.15)' },
-}
+const BUBBLE_LAYOUT = [
+  { cx: 380, cy: 170, r: 65, delay: 0 },
+  { cx: 560, cy: 130, r: 55, delay: 1 },
+  { cx: 220, cy: 190, r: 45, delay: 2 },
+  { cx: 650, cy: 230, r: 40, delay: 3 },
+  { cx: 310, cy: 260, r: 35, delay: 4 },
+  { cx: 130, cy: 120, r: 30, delay: 5 },
+  { cx: 710, cy: 110, r: 28, delay: 6 },
+  { cx: 270, cy: 80,  r: 25, delay: 7 },
+  { cx: 480, cy: 260, r: 30, delay: 8 },
+]
 
-// ── TypeBadge ─────────────────────────────────────────────────────────────────
+// ─── PAGE-SPECIFIC COMPONENTS ────────────────────────────────────────────────
+
 const TypeBadge = ({ type }) => {
-  const cfg = SESSION_TYPE_CONFIG[type] || { color: 'rgba(255,255,255,0.7)', bg: 'rgba(255,255,255,0.1)' }
+  const styles = {
+    Theory:   { bg: 'rgba(139,92,246,0.15)',  color: '#8b5cf6' },
+    Practice: { bg: 'rgba(74,158,237,0.15)',  color: '#4a9eed' },
+    Project:  { bg: 'rgba(34,197,94,0.15)',   color: '#22c55e' },
+    Revision: { bg: 'rgba(245,158,11,0.15)',  color: '#f59e0b' },
+  }
+  const s = styles[type] || { bg: 'rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.7)' }
   return (
     <span
-      className="inline-block font-sans text-[10px] font-semibold px-2 py-[2px] rounded-[4px]"
-      style={{ color: cfg.color, backgroundColor: cfg.bg }}
+      className="inline-block px-2 py-[2px] rounded text-[10px] font-semibold"
+      style={{ background: s.bg, color: s.color }}
     >
       {type}
     </span>
   )
 }
 
-// ── UnderstandingDots ─────────────────────────────────────────────────────────
-const UnderstandingDots = ({ level }) => (
+const UnderstandingDots = ({ level = 0 }) => (
   <div className="flex gap-[3px] items-center">
     {[1, 2, 3, 4, 5].map(dot => (
       <div
         key={dot}
         className="w-[6px] h-[6px] rounded-full"
         style={{
-          backgroundColor: dot <= level
+          background: dot <= level
             ? ACCENT
             : 'rgba(255,255,255,0.1)'
         }}
@@ -65,21 +75,19 @@ const UnderstandingDots = ({ level }) => (
   </div>
 )
 
-// ── UnderstandingBars ─────────────────────────────────────────────────────────
 const UnderstandingBars = ({ entries }) => {
   const topicUnderstanding = useMemo(() => {
-    const byTopic = {}
+    const map = {}
     entries.forEach(e => {
       const topic = e.payload?.topic
       const level = e.payload?.understanding_level
       if (!topic || !level) return
-      if (!byTopic[topic]) byTopic[topic] = []
-      byTopic[topic].push(level)
+      if (!map[topic]) map[topic] = []
+      map[topic].push(level)
     })
-
-    return Object.entries(byTopic)
-      .map(([topic, levels]) => ({
-        topic,
+    return Object.entries(map)
+      .map(([name, levels]) => ({
+        name,
         avg: levels.reduce((s, l) => s + l, 0) / levels.length
       }))
       .sort((a, b) => b.avg - a.avg)
@@ -93,46 +101,54 @@ const UnderstandingBars = ({ entries }) => {
     return '#ef4444'
   }
 
+  if (topicUnderstanding.length === 0) {
+    return (
+      <p
+        className="font-sans text-[13px] italic"
+        style={{ color: 'rgba(255,255,255,0.2)' }}
+      >
+        No sessions logged yet.
+      </p>
+    )
+  }
+
   return (
-    <div className="flex flex-col gap-[14px]">
-      {topicUnderstanding.map((item, i) => (
-        <div key={item.topic} className="flex items-center gap-3">
-          <div
-            className="font-sans text-[12px] text-white truncate shrink-0"
-            style={{ width: '90px' }}
-            title={item.topic}
+    <div className="flex flex-col gap-3">
+      {topicUnderstanding.map((t, i) => (
+        <div key={i} className="flex items-center gap-3">
+          <span
+            className="font-sans text-[12px] text-white w-[100px] truncate shrink-0"
+            title={t.name}
           >
-            {item.topic}
-          </div>
+            {t.name}
+          </span>
           <div
             className="flex-1 h-[6px] rounded-full overflow-hidden"
-            style={{ backgroundColor: 'rgba(255,255,255,0.06)' }}
+            style={{ background: 'rgba(255,255,255,0.06)' }}
           >
             <div
               className="h-full rounded-full transition-all duration-500"
               style={{
-                width:           `${(item.avg / 5) * 100}%`,
-                backgroundColor: getBarColor(item.avg),
-                animationDelay:  `${i * 60}ms`
+                width: `${(t.avg / 5) * 100}%`,
+                background: getBarColor(t.avg)
               }}
             />
           </div>
-          <div
-            className="font-mono text-[11px] shrink-0 w-[24px] text-right"
+          <span
+            className="font-mono text-[11px] w-[28px] text-right shrink-0"
             style={{ color: 'rgba(255,255,255,0.5)' }}
           >
-            {item.avg.toFixed(1)}
-          </div>
+            {t.avg.toFixed(1)}
+          </span>
         </div>
       ))}
     </div>
   )
 }
 
-// ── SessionMixCard ────────────────────────────────────────────────────────────
 const SessionMixCard = ({ entries }) => {
   const mix = useMemo(() => {
-    const total  = entries.length || 1
+    const total  = entries.length
     const counts = { Theory: 0, Practice: 0, Project: 0, Revision: 0 }
     entries.forEach(e => {
       const t = e.payload?.session_type
@@ -141,11 +157,18 @@ const SessionMixCard = ({ entries }) => {
     return Object.entries(counts).map(([type, count]) => ({
       type,
       count,
-      pct: Math.round((count / total) * 100)
+      pct: total > 0 ? Math.round((count / total) * 100) : 0
     }))
   }, [entries])
 
-  const goodBalance = mix[0]?.pct < 60
+  const colors = {
+    Theory:   ACCENT,
+    Practice: '#4a9eed',
+    Project:  '#22c55e',
+    Revision: '#f59e0b',
+  }
+
+  const practicePercent = mix.find(m => m.type === 'Practice')?.pct || 0
 
   return (
     <GlassCard className="p-5 flex flex-col justify-between h-full">
@@ -153,27 +176,23 @@ const SessionMixCard = ({ entries }) => {
         <h3 className="font-sans font-medium text-[14px] text-white mb-4">
           Session Mix
         </h3>
-
-        {/* Segmented bar */}
         <div className="flex w-full h-[8px] rounded-full overflow-hidden mb-4">
           {mix.map(item => (
             <div
               key={item.type}
               style={{
-                width:           `${item.pct}%`,
-                backgroundColor: SESSION_TYPE_CONFIG[item.type]?.color || '#fff'
+                width: `${item.pct}%`,
+                background: colors[item.type]
               }}
             />
           ))}
         </div>
-
-        {/* Legend */}
         <div className="grid grid-cols-2 gap-y-2 gap-x-4">
           {mix.map(item => (
             <div key={item.type} className="flex items-center gap-2">
               <div
                 className="w-2 h-2 rounded-full shrink-0"
-                style={{ backgroundColor: SESSION_TYPE_CONFIG[item.type]?.color }}
+                style={{ background: colors[item.type] }}
               />
               <span
                 className="font-sans text-[12px]"
@@ -191,37 +210,34 @@ const SessionMixCard = ({ entries }) => {
           ))}
         </div>
       </div>
-
       <div
-        className="pt-3 mt-3 font-sans text-[12px]"
+        className="mt-4 pt-3 text-[12px]"
         style={{
           borderTop: '1px solid rgba(255,255,255,0.06)',
-          color:     goodBalance ? '#22c55e' : ACCENT
+          color: practicePercent >= 30 ? '#22c55e' : ACCENT
         }}
       >
-        {goodBalance
+        {practicePercent >= 30
           ? '✓ Good balance of active learning.'
-          : 'Consider adding more practice sessions.'
+          : '↑ Try adding more practice sessions.'
         }
       </div>
     </GlassCard>
   )
 }
 
-// ── MomentumCard ──────────────────────────────────────────────────────────────
 const MomentumCard = ({ entries }) => {
-  const sparklineData = useMemo(() => {
-    const sorted = [...entries]
-      .filter(e => e.payload?.understanding_level)
+  const sparkData = useMemo(() => {
+    return [...entries]
       .sort((a, b) => new Date(a.date) - new Date(b.date))
       .slice(-8)
-      .map(e => e.payload.understanding_level)
-    return sorted.length > 1 ? sorted : [0]
+      .map(e => e.payload?.understanding_level || 0)
+      .filter(v => v > 0)
   }, [entries])
 
-  const first = sparklineData[0]
-  const last  = sparklineData[sparklineData.length - 1]
-  const trend = last > first
+  const first = sparkData[0] || 0
+  const last  = sparkData[sparkData.length - 1] || 0
+  const trend = last - first
 
   return (
     <GlassCard className="p-5 flex flex-col justify-between h-full">
@@ -229,60 +245,73 @@ const MomentumCard = ({ entries }) => {
         <h3 className="font-sans font-medium text-[14px] text-white mb-3">
           Learning Momentum
         </h3>
-        <Sparkline
-          data={sparklineData}
-          accentColor={ACCENT}
-          height={48}
-        />
+        {sparkData.length < 2 ? (
+          <p
+            className="font-sans text-[12px] italic"
+            style={{ color: 'rgba(255,255,255,0.3)' }}
+          >
+            Log more sessions to see your momentum.
+          </p>
+        ) : (
+          <Sparkline
+            data={sparkData}
+            accentColor={ACCENT}
+            height={48}
+          />
+        )}
       </div>
-
-      <div>
-        <div className="flex items-center gap-3 mb-1 mt-4">
-          <span
-            className="font-mono text-[18px]"
+      {sparkData.length >= 2 && (
+        <div className="mt-3">
+          <div className="flex items-center gap-3 mb-1">
+            <span
+              className="font-mono text-[18px]"
+              style={{ color: 'rgba(255,255,255,0.5)' }}
+            >
+              {first.toFixed(1)}
+            </span>
+            <span style={{ color: trend >= 0 ? '#22c55e' : '#ef4444' }}>
+              {trend >= 0 ? '↑' : '↓'}
+            </span>
+            <span className="font-mono text-[18px] text-white">
+              {last.toFixed(1)}
+            </span>
+          </div>
+          <p
+            className="font-sans text-[11px]"
             style={{ color: 'rgba(255,255,255,0.5)' }}
           >
-            {first.toFixed(1)}
-          </span>
-          <ArrowUp
-            size={16}
-            className={trend ? 'text-[#22c55e]' : 'text-[#ef4444]'}
-            style={{ transform: trend ? 'none' : 'rotate(180deg)' }}
-          />
-          <span className="font-mono text-[18px] text-white">
-            {last.toFixed(1)}
-          </span>
+            {trend >= 0
+              ? 'Understanding trending up'
+              : 'Understanding trending down'
+            }
+          </p>
         </div>
-        <p
-          className="font-sans text-[11px]"
-          style={{ color: 'rgba(255,255,255,0.5)' }}
-        >
-          Understanding {trend ? 'trending up' : 'trending down'}
-        </p>
-      </div>
+      )}
     </GlassCard>
   )
 }
 
-// ── ThisWeekCard ──────────────────────────────────────────────────────────────
+// Fixed: use date-fns startOfWeek
 const ThisWeekCard = ({ entries }) => {
-  const weekData = useMemo(() => {
-    const now       = new Date()
-    const weekStart = startOfWeek(now, { weekStartsOn: 1 })
-    const weekEnd   = endOfWeek(now, { weekStartsOn: 1 })
-
-    const weekEntries = entries.filter(e =>
-      isWithinInterval(parseISO(e.date), { start: weekStart, end: weekEnd })
-    )
-
-    const sessions   = weekEntries.length
-    const totalMins  = weekEntries.reduce((s, e) => s + (e.payload?.duration_mins || 0), 0)
-    const hours      = (totalMins / 60).toFixed(1)
-    const topics     = [...new Set(weekEntries.map(e => e.payload?.topic).filter(Boolean))]
-    const topTopic   = topics[0] || '—'
-
-    return { sessions, hours, topTopic, topicCount: topics.length }
+  const thisWeekEntries = useMemo(() => {
+    const weekStart = startOfWeek(new Date(), { weekStartsOn: 1 })
+    return entries.filter(e => new Date(e.date) >= weekStart)
   }, [entries])
+
+  const totalMins  = thisWeekEntries.reduce(
+    (s, e) => s + (e.payload?.duration_mins || 0), 0
+  )
+  const totalHours = (totalMins / 60).toFixed(1)
+
+  const topTopic = useMemo(() => {
+    const map = {}
+    thisWeekEntries.forEach(e => {
+      const t = e.payload?.topic
+      if (!t) return
+      map[t] = (map[t] || 0) + 1
+    })
+    return Object.entries(map).sort((a, b) => b[1] - a[1])[0]?.[0] || '—'
+  }, [thisWeekEntries])
 
   return (
     <GlassCard className="p-5 flex flex-col justify-between h-full">
@@ -293,7 +322,7 @@ const ThisWeekCard = ({ entries }) => {
         <div className="flex flex-col gap-2 mb-4">
           <div className="flex items-baseline gap-2">
             <span className="font-mono text-[20px] text-white">
-              {weekData.sessions}
+              {thisWeekEntries.length}
             </span>
             <span
               className="font-sans text-[11px]"
@@ -304,7 +333,7 @@ const ThisWeekCard = ({ entries }) => {
           </div>
           <div className="flex items-baseline gap-2">
             <span className="font-mono text-[20px] text-white">
-              {weekData.hours}
+              {totalHours}
             </span>
             <span
               className="font-sans text-[11px]"
@@ -313,190 +342,150 @@ const ThisWeekCard = ({ entries }) => {
               hours
             </span>
           </div>
-          <div className="font-sans text-[14px] text-white mt-1">
-            {weekData.topTopic}
-          </div>
+          {topTopic !== '—' && (
+            <div className="font-sans text-[14px] text-white mt-1">
+              {topTopic}
+            </div>
+          )}
         </div>
       </div>
-
       <div
-        className="pt-3 border-t font-sans text-[12px] leading-relaxed"
+        className="pt-3 text-[12px] leading-relaxed"
         style={{
-          borderColor: 'rgba(255,255,255,0.06)',
-          color:       'rgba(255,255,255,0.8)'
+          borderTop: '1px solid rgba(255,255,255,0.06)',
+          color: 'rgba(255,255,255,0.6)'
         }}
       >
-        {weekData.topicCount > 2
-          ? `Topic hopping detected — consider going deeper into ${weekData.topTopic}.`
-          : `Staying focused. Keep going.`
+        {thisWeekEntries.length === 0
+          ? 'No sessions logged this week yet.'
+          : thisWeekEntries.length >= 5
+            ? 'Great consistency this week!'
+            : 'Keep the momentum going.'
         }
       </div>
     </GlassCard>
   )
 }
 
-// ── Depth map node builder ────────────────────────────────────────────────────
-const ML_FIXED_LAYOUT = [
-  { cx: 380, cy: 170, delay: 0 },
-  { cx: 560, cy: 130, delay: 1 },
-  { cx: 220, cy: 190, delay: 2 },
-  { cx: 650, cy: 230, delay: 3 },
-  { cx: 310, cy: 260, delay: 4 },
-  { cx: 130, cy: 120, delay: 5 },
-  { cx: 710, cy: 110, delay: 6 },
-  { cx: 480, cy: 260, delay: 7 },
-  { cx: 270, cy: 80,  delay: 8 },
-]
-
-const buildDepthMapNodes = (entries) => {
-  const byTopic = {}
-
-  entries.forEach(e => {
-    const topic = e.payload?.topic
-    if (!topic) return
-    if (!byTopic[topic]) byTopic[topic] = []
-    byTopic[topic].push(e)
-  })
-
-  const topics   = Object.entries(byTopic)
-  const maxHours = Math.max(
-    ...topics.map(([, arr]) =>
-      arr.reduce((s, e) => s + (e.payload?.duration_mins || 0), 0) / 60
-    ),
-    1
+const ResourceIcon = ({ type }) => {
+  const icons = {
+    YouTube:  '▶',
+    Course:   '🎓',
+    Paper:    '📄',
+    Book:     '📚',
+    Project:  '🔧',
+    Blog:     '✍',
+  }
+  return (
+    <span
+      className="font-sans text-[13px]"
+      style={{ color: 'rgba(255,255,255,0.5)' }}
+    >
+      {icons[type] || '📄'}
+    </span>
   )
-
-  return topics.slice(0, 9).map(([topic, topicEntries], i) => {
-    const hours = topicEntries.reduce(
-      (s, e) => s + (e.payload?.duration_mins || 0), 0
-    ) / 60
-
-    // daysAgo = days since most recent entry for this topic
-    const sorted  = [...topicEntries].sort((a, b) => new Date(b.date) - new Date(a.date))
-    const daysAgo = getDaysAgo(sorted[0].date)
-
-    const r = 25 + (hours / maxHours) * 40
-
-    return {
-      id:     topic,
-      name:   topic,
-      count:  Math.round(hours * 10) / 10,
-      daysAgo,
-      cx:     ML_FIXED_LAYOUT[i]?.cx || 400,
-      cy:     ML_FIXED_LAYOUT[i]?.cy || 160,
-      r,
-      delay:  ML_FIXED_LAYOUT[i]?.delay || 0,
-    }
-  })
 }
 
-// ── Weekly hours bar data ─────────────────────────────────────────────────────
-const buildWeeklyHours = (entries) => {
-  return Array.from({ length: 8 }, (_, i) => {
-    const weekStart = startOfWeek(subDays(new Date(), i * 7), { weekStartsOn: 1 })
-    const weekEnd   = endOfWeek(weekStart, { weekStartsOn: 1 })
-    const label     = format(weekStart, 'MMM d')
+// ─── MAIN PAGE ────────────────────────────────────────────────────────────────
 
-    const mins = entries
-      .filter(e => isWithinInterval(parseISO(e.date), { start: weekStart, end: weekEnd }))
-      .reduce((s, e) => s + (e.payload?.duration_mins || 0), 0)
-
-    return { label, value: Math.round((mins / 60) * 10) / 10 }
-  }).reverse()
-}
-
-// ── Main MLDeepDive Page ──────────────────────────────────────────────────────
 const MLDeepDive = () => {
-  const { widgetId }  = useParams()
-  const dispatch      = useDispatch()
-  const [selectedTopic, setSelectedTopic] = useState(null)
+  const { widgetId } = useParams()
+  const dispatch     = useDispatch()
 
   const { entries, loading } = useWidgetEntries(widgetId)
   const {
     filteredEntries,
     dateFilter,
     setDateFilter,
+    topicFilter,
     setTopicFilter,
   } = useDeepDiveFilter(entries)
 
-  // ── Computed stats ────────────────────────────────────────────────────────
   const totalSessions = entries.length
 
-  const totalHours = useMemo(() =>
-    (entries.reduce((s, e) => s + (e.payload?.duration_mins || 0), 0) / 60).toFixed(1),
-    [entries]
-  )
+  const totalHours = useMemo(() => {
+    const mins = entries.reduce(
+      (s, e) => s + (e.payload?.duration_mins || 0), 0
+    )
+    return (mins / 60).toFixed(1)
+  }, [entries])
 
-  const currentStreak = useMemo(() => calcStreak(entries), [entries])
+  const currentStreak = useMemo(() => calcStreak(entries),     [entries])
+  const bestStreak    = useMemo(() => calcBestStreak(entries), [entries])
 
   const topTopic = useMemo(() => {
-    const counts = {}
+    const map = {}
     entries.forEach(e => {
       const t = e.payload?.topic
-      if (t) counts[t] = (counts[t] || 0) + 1
+      if (!t) return
+      map[t] = (map[t] || 0) + 1
     })
-    if (!Object.keys(counts).length) return '—'
-    return Object.entries(counts).sort((a, b) => b[1] - a[1])[0][0]
+    return Object.entries(map).sort((a, b) => b[1] - a[1])[0]?.[0] || '—'
   }, [entries])
-
-  const topTopicHours = useMemo(() => {
-    return (
-      entries
-        .filter(e => e.payload?.topic === topTopic)
-        .reduce((s, e) => s + (e.payload?.duration_mins || 0), 0) / 60
-    ).toFixed(1)
-  }, [entries, topTopic])
 
   const avgUnderstanding = useMemo(() => {
-    const levels = entries.map(e => e.payload?.understanding_level).filter(Boolean)
-    if (!levels.length) return 0
-    return (levels.reduce((s, l) => s + l, 0) / levels.length).toFixed(1)
+    const leveled = entries.filter(e => e.payload?.understanding_level)
+    if (leveled.length === 0) return '0.0'
+    const sum = leveled.reduce(
+      (s, e) => s + e.payload.understanding_level, 0
+    )
+    return (sum / leveled.length).toFixed(1)
   }, [entries])
 
-  const prevAvgUnderstanding = useMemo(() => {
-    const old = entries.slice(Math.floor(entries.length / 2))
-    const levels = old.map(e => e.payload?.understanding_level).filter(Boolean)
-    if (!levels.length) return 0
-    return (levels.reduce((s, l) => s + l, 0) / levels.length).toFixed(1)
+  const heatmapData = useMemo(() =>
+    entriesToHeatmapData(entries), [entries]
+  )
+
+  // Fixed: use getDaysAgo from dateUtils
+  const depthMapNodes = useMemo(() => {
+    const map = {}
+    entries.forEach(e => {
+      const topic = e.payload?.topic
+      if (!topic) return
+      if (!map[topic]) map[topic] = { mins: 0, lastDate: e.date }
+      map[topic].mins += e.payload?.duration_mins || 0
+      if (e.date > map[topic].lastDate) map[topic].lastDate = e.date
+    })
+
+    const allHours = Object.values(map).map(d => d.mins / 60)
+    const maxHours = Math.max(...allHours, 1)
+    const minHours = Math.min(...allHours, 0)
+
+    return Object.entries(map)
+      .sort((a, b) => b[1].mins - a[1].mins)
+      .slice(0, 9)
+      .map(([name, data], i) => {
+        const hours = data.mins / 60
+        const r     = Math.round(
+          25 + ((hours - minHours) / (maxHours - minHours || 1)) * 40
+        )
+        return {
+          id:      name,
+          name,
+          count:   parseFloat(hours.toFixed(1)),
+          daysAgo: getDaysAgo(data.lastDate),
+          cx:      BUBBLE_LAYOUT[i]?.cx || 400,
+          cy:      BUBBLE_LAYOUT[i]?.cy || 160,
+          r,
+          delay:   i,
+        }
+      })
   }, [entries])
 
-  // ── Stats bar ─────────────────────────────────────────────────────────────
   const stats = [
-    { value: totalSessions,    label: 'TOTAL SESSIONS',    color: ACCENT,     subtext: '+8 this week'                    },
-    { value: `${totalHours}h`, label: 'TOTAL HOURS',       color: ACCENT,     subtext: '+3.5h this week'                 },
-    { value: `${currentStreak}🔥`, label: 'CURRENT STREAK', color: ACCENT,   subtext: ''                                },
-    { value: topTopic,         label: 'TOP TOPIC',         color: ACCENT,     subtext: `${topTopicHours}h logged`        },
-    { value: avgUnderstanding, label: 'AVG UNDERSTANDING', color: ACCENT,     subtext: `↑ from ${prevAvgUnderstanding}` },
+    { value: totalSessions.toString(), label: 'TOTAL SESSIONS',      color: ACCENT    },
+    { value: `${totalHours}h`,         label: 'TOTAL HOURS',         color: ACCENT    },
+    {
+      value:   `${currentStreak}d`,
+      label:   'CURRENT STREAK',
+      color:   '#f59e0b',
+      subtext: currentStreak > 0 ? '🔥' : ''
+    },
+    { value: topTopic,              label: 'TOP TOPIC',           color: '#22c55e' },
+    { value: avgUnderstanding,      label: 'AVG UNDERSTANDING',   color: ACCENT    },
   ]
 
-  // ── Heatmap data ──────────────────────────────────────────────────────────
-  const heatmapData = useMemo(() =>
-    entriesToHeatmapData(entries),
-    [entries]
-  )
-
-  // ── Depth map nodes ───────────────────────────────────────────────────────
-  const depthMapNodes = useMemo(() =>
-    buildDepthMapNodes(entries),
-    [entries]
-  )
-
-  // ── Weekly hours chart ────────────────────────────────────────────────────
-  const weeklyHours = useMemo(() =>
-    buildWeeklyHours(entries),
-    [entries]
-  )
-
-  // ── Log rows — filter by selected topic from depth map ───────────────────
-  const logRows = useMemo(() => {
-    if (selectedTopic) {
-      return filteredEntries.filter(e => e.payload?.topic === selectedTopic)
-    }
-    return filteredEntries
-  }, [filteredEntries, selectedTopic])
-
-  // ── Open quick add modal ──────────────────────────────────────────────────
-  const handleLogSession = () => {
+  const handleCta = () => {
     dispatch(setActiveWidget(widgetId))
     dispatch(openModal('ml'))
   }
@@ -505,9 +494,12 @@ const MLDeepDive = () => {
     return (
       <div
         className="min-h-screen flex items-center justify-center"
-        style={{ backgroundColor: '#0a0a0f' }}
+        style={{ background: '#0a0a0f' }}
       >
-        <p className="font-mono text-[13px]" style={{ color: 'rgba(255,255,255,0.4)' }}>
+        <p
+          className="font-mono text-[13px]"
+          style={{ color: 'rgba(255,255,255,0.3)' }}
+        >
           Loading...
         </p>
       </div>
@@ -517,13 +509,13 @@ const MLDeepDive = () => {
   return (
     <div
       className="min-h-screen relative"
-      style={{ backgroundColor: '#0a0a0f', color: '#c8d0e0' }}
+      style={{ background: '#0a0a0f' }}
     >
-      {/* Ambient effects */}
+      {/* Ambient background effects */}
       <div
         className="pointer-events-none fixed top-0 right-0 w-[800px] h-[800px] z-0"
         style={{
-          background: `radial-gradient(ellipse at top right, ${ACCENT}0a 0%, transparent 65%)`
+          background: 'radial-gradient(ellipse at top right, rgba(139,92,246,0.04) 0%, transparent 65%)'
         }}
       />
       <div
@@ -541,22 +533,20 @@ const MLDeepDive = () => {
 
       <div className="relative z-10">
 
-        {/* Header */}
         <DeepDiveHeader
           title="ML Learning"
           subtitle="Track your learning, not just your hours."
           accentColor={ACCENT}
           ctaLabel="Log Session"
-          onCta={handleLogSession}
+          onCta={handleCta}
         />
 
-        {/* Main content */}
         <div className="max-w-5xl mx-auto px-6 pb-24 pt-6 flex flex-col gap-[14px]">
 
           {/* Stats Bar */}
           <StatsBar stats={stats} />
 
-          {/* Consistency Heatmap */}
+          {/* Heatmap */}
           <div>
             <SectionLabel label="CONSISTENCY" />
             <ActivityHeatmap
@@ -568,7 +558,7 @@ const MLDeepDive = () => {
             />
           </div>
 
-          {/* Learning Intelligence strip */}
+          {/* Learning Intelligence */}
           <div>
             <SectionLabel label="LEARNING INTELLIGENCE" />
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -578,36 +568,33 @@ const MLDeepDive = () => {
             </div>
           </div>
 
-          {/* Topic Intelligence — Depth Map + Understanding Bars */}
+          {/* Topic Intelligence */}
           <div>
             <SectionLabel label="TOPIC INTELLIGENCE" />
             <GlassCard className="p-5">
               <div className="flex flex-col lg:flex-row gap-6">
 
-                {/* Left — Depth Map bubble chart */}
+                {/* Depth Map */}
                 <div className="flex-[3] min-w-0">
                   <h3
-                    className="font-sans font-medium text-[13px] mb-2"
+                    className="font-sans text-[13px] font-medium mb-2"
                     style={{ color: 'rgba(255,255,255,0.5)' }}
                   >
                     Depth Map
                   </h3>
                   {depthMapNodes.length === 0 ? (
                     <p
-                      className="font-sans text-[13px] italic py-8 text-center"
+                      className="font-sans text-[13px] italic py-10 text-center"
                       style={{ color: 'rgba(255,255,255,0.3)' }}
                     >
-                      Log sessions to see your topic depth map.
+                      Log sessions across topics to see your depth map.
                     </p>
                   ) : (
                     <BubbleChart
                       nodes={depthMapNodes}
                       accentColor={ACCENT}
-                      selectedId={selectedTopic}
-                      onSelect={(id) => {
-                        setSelectedTopic(id)
-                        setTopicFilter(id)
-                      }}
+                      selectedId={topicFilter}
+                      onSelect={setTopicFilter}
                     />
                   )}
                 </div>
@@ -615,62 +602,36 @@ const MLDeepDive = () => {
                 {/* Divider */}
                 <div
                   className="hidden lg:block w-[1px] self-stretch"
-                  style={{ backgroundColor: 'rgba(255,255,255,0.06)' }}
+                  style={{ background: 'rgba(255,255,255,0.06)' }}
                 />
 
-                {/* Right — Understanding Bars */}
+                {/* Understanding Bars */}
                 <div className="flex-[2] min-w-[200px]">
                   <h3
-                    className="font-sans font-medium text-[13px] mb-4"
+                    className="font-sans text-[13px] font-medium mb-4"
                     style={{ color: 'rgba(255,255,255,0.5)' }}
                   >
                     Understanding
                   </h3>
-                  {entries.length === 0 ? (
-                    <p
-                      className="font-sans text-[13px] italic"
-                      style={{ color: 'rgba(255,255,255,0.3)' }}
-                    >
-                      No entries yet
-                    </p>
-                  ) : (
-                    <UnderstandingBars entries={entries} />
-                  )}
+                  <UnderstandingBars entries={entries} />
                 </div>
 
               </div>
             </GlassCard>
           </div>
 
-          {/* Weekly Hours Chart */}
-          <div>
-            <SectionLabel label="WEEKLY HOURS" />
-            <GlassCard className="p-5">
-              <BarChart
-                data={weeklyHours}
-                accentColor={ACCENT}
-                unit="h"
-                height={180}
-              />
-            </GlassCard>
-          </div>
-
           {/* Recent Sessions */}
           <RecentLog
             label="RECENT SESSIONS"
-            rows={logRows}
+            rows={filteredEntries}
             accentColor={ACCENT}
             dateFilter={dateFilter}
             onDateChange={setDateFilter}
-            emptyMessage={
-              selectedTopic
-                ? `No sessions found for "${selectedTopic}"`
-                : 'No sessions found for this date.'
-            }
-            recordCount={logRows.length}
+            emptyMessage="No sessions match the current filter."
+            recordCount={filteredEntries.length}
             renderLeft={(row) => (
               <span
-                className="font-mono text-[12px]"
+                className="font-mono text-[11px] shrink-0"
                 style={{ color: 'rgba(255,255,255,0.5)' }}
               >
                 {formatRelativeDate(row.date)}
@@ -692,18 +653,23 @@ const MLDeepDive = () => {
               </div>
             )}
             renderRight={(row) => (
-              <div className="flex flex-col items-end gap-[3px]">
+              <div className="flex flex-col items-end gap-1.5">
+                <div className="flex items-center gap-2">
+                  <ResourceIcon type={row.payload?.resource_type} />
+                  <span
+                    className="font-mono text-[11px]"
+                    style={{ color: 'rgba(255,255,255,0.5)' }}
+                  >
+                    {row.payload?.duration_mins
+                      ? `${Math.floor(row.payload.duration_mins / 60)}h ${row.payload.duration_mins % 60}m`
+                      : '—'
+                    }
+                  </span>
+                </div>
                 <TypeBadge type={row.payload?.session_type || 'Theory'} />
-                <span
-                  className="font-mono text-[11px]"
-                  style={{ color: 'rgba(255,255,255,0.5)' }}
-                >
-                  {row.payload?.duration_mins
-                    ? `${Math.floor(row.payload.duration_mins / 60)}h ${row.payload.duration_mins % 60}m`
-                    : '—'
-                  }
-                </span>
-                <UnderstandingDots level={row.payload?.understanding_level || 0} />
+                <UnderstandingDots
+                  level={row.payload?.understanding_level || 0}
+                />
               </div>
             )}
           />
