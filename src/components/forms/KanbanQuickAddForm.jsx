@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react'
 import { useForm, Controller } from 'react-hook-form'
-import { useDispatch } from 'react-redux'
+import { useDispatch , useSelector } from 'react-redux'
 import { X } from 'lucide-react'
 import { closeModal } from '../../store/uiSlice'
 import Input from '../Input'
@@ -23,8 +23,10 @@ const PRIORITY_OPTIONS = [
   { label: 'High',   value: 'high',   dot: '#ef4444' },
 ]
 
-const today = () => new Date().toISOString().split('T')[0]
-
+const today = () => {
+  const d = new Date();
+  return d.toLocaleDateString('en-CA');
+}
 const TagChipInput = ({ tags, setTags }) => {
   const [input, setInput]               = useState('')
   const [duplicateIndex, setDuplicateIndex] = useState(null)
@@ -95,6 +97,7 @@ const TagChipInput = ({ tags, setTags }) => {
 const KanbanQuickAddForm = ({ widgetId, accentColor }) => {
   const dispatch = useDispatch()
   const [tags, setTags] = useState([])
+  const user = useSelector((state) => state.auth.userData)
 
   const {
     register,
@@ -112,7 +115,11 @@ const KanbanQuickAddForm = ({ widgetId, accentColor }) => {
   })
 
   const onSubmit = async (data) => {
-    // YOUR LOGIC:
+
+    try{
+        if(!user?.id) throw new Error('User ID is required')
+
+            // YOUR LOGIC:
     const payload = {
       task_id:  crypto.randomUUID(),
       title:    data.title,
@@ -121,11 +128,16 @@ const KanbanQuickAddForm = ({ widgetId, accentColor }) => {
       due_date: data.due_date || null,
       tags:     tags,
     }
-    const entry = await entryService.addEntry(widgetId, payload, data.entry_date)
-    if(entry){
-        dispatch(addEntry(entry))
-        dispatch(closeModal)
+    const entry = await entryService.addEntry(widgetId, user.id, payload, data.entry_date)  
+      if(entry){
+        dispatch(addEntry({entry,widget_id:widgetId}))
+        dispatch(closeModal())
     }
+
+    }catch(error){
+        console.error("Error creating entry:", error)
+    }
+    
   }
 
   return (

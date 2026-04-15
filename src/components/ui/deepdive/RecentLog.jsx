@@ -1,5 +1,5 @@
-import GlassCard from '../ui/GlassCard'
-import SectionLabel from '../ui/SectionLabel'
+import GlassCard from '../GlassCard'
+import SectionLabel from '../SectionLabel'
 
 const RecentLog = ({
   label,

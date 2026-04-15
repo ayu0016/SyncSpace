@@ -13,14 +13,14 @@ import { entriesToHeatmapData } from '../../utils/heatmapUtils'
 import { formatRelativeDate, getDaysAgo } from '../../utils/dateUtils'
 
 // Shared components
-import DeepDiveHeader from '../../components/deepdive/DeepDiveHeader'
+import DeepDiveHeader from '../../components/ui/deepdive/DeepDiveHeader'
 import SectionLabel from '../../components/ui/SectionLabel'
 import StatsBar from '../../components/ui/StatsBar'
 import GlassCard from '../../components/ui/GlassCard'
-import ActivityHeatmap from '../../components/deepdive/ActivityHeatmap'
+import ActivityHeatmap from '../../components/ui/deepdive/ActivityHeatmap'
 import DonutChart from '../../components/ui/charts/DonutChart'
-import BubbleChart from '../../components/deepdive/BubbleChart'
-import RecentLog from '../../components/deepdive/RecentLog'
+import BubbleChart from '../../components/ui/deepdive/BubbleChart'
+import RecentLog from '../../components/ui/deepdive/RecentLog'
 
 // ─── CONSTANTS ───────────────────────────────────────────────────────────────
 

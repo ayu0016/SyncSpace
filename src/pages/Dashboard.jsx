@@ -1,6 +1,5 @@
 import { useEffect, useState ,useCallback} from 'react'
 import Navbar from '../components/Navbar'
-import AllWidget from '../components/AllWidget'
 import TodoPanel from '../components/Todos/TodoPannel'
 import TodoFAB from '../components/Todos/TodoFAB'
 import { useSelector,useDispatch } from 'react-redux'
@@ -13,26 +12,38 @@ import { setWidgets } from '../store/widgetSlice'
 import { setEntries } from '../store/entriesSlice'
 import QuickAddModal from '../components/QuickAddModal'
 
+import { Outlet } from 'react-router-dom'
+
 export default function Dashboard() {
+
+    const [loading, setLoading] = useState(true)
+    const [error, setError] = useState(null)
+
     const isTodoOpen= useSelector((state)=>state.ui.isTodoOpen)
     const dispatch=useDispatch()
     // 🔴 Replace with Redux selector later
-    const activeTodoCount = 3
+    const activeTodoCount = useSelector((state) => state.todos.todos.filter(todo => !todo.completed).length)
     const userData= useSelector((state)=>state.auth.userData)
     const fetchAll = useCallback(async () => {
-    if (!userData) return
-    try {
-        const [todoData, widgetData, entryData] = await Promise.all([
-        todosService.fetchTodos(userData.id),
-        widgetService.getWidgets(userData.id),
-        entryService.getAllEntries(userData.id),
-        ])
-        if (todoData)   dispatch(setTodos(todoData))
-        if (widgetData) dispatch(setWidgets(widgetData))
-        if (entryData)  dispatch(setEntries(entryData))
-    } catch (error) {
-        console.error('Failed to load dashboard data:', error)
-    }
+        setLoading(true)
+        setError(null)
+
+        if (!userData) return
+        try {
+            const [todoData, widgetData, entryData] = await Promise.all([
+            todosService.fetchTodos(userData.id),
+            widgetService.getWidgets(userData.id),
+            entryService.getAllEntries(userData.id),
+            ])
+            if (todoData)   dispatch(setTodos(todoData))
+            if (widgetData) dispatch(setWidgets(widgetData))
+            if (entryData)  dispatch(setEntries(entryData))
+        } catch (error) {
+            console.error('Failed to load dashboard data:', error)
+            setError('Failed to load dashboard data')
+        } finally {
+            setLoading(false)
+        }
     }, [userData, dispatch])
 
     useEffect(() => {
@@ -51,7 +62,7 @@ export default function Dashboard() {
 
             {/* Left Section — Widget Grid */}
             <div className="w-full lg:w-14/20 p-4 overflow-y-auto">
-            <AllWidget />
+            <Outlet />
             </div>
 
             {/* Right Section — Desktop only */}

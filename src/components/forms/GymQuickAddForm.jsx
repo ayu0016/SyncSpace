@@ -30,7 +30,12 @@ const DEFAULT_TARGETS = {
   weekly_workout_goal: 5,
 }
 
-const today = () => new Date().toISOString().split('T')[0]
+const today = () => {
+  const d = new Date();
+  return d.toLocaleDateString('en-CA');
+}
+
+
 
 // ─── Combobox ───────────────────────────────────────────────────────────────
 const ExerciseCombobox = ({ value, onChange, suggestions, error, accentColor }) => {
@@ -107,6 +112,8 @@ const ExerciseCombobox = ({ value, onChange, suggestions, error, accentColor }) 
 // ─── Main Form ───────────────────────────────────────────────────────────────
 const GymQuickAddForm = ({ widgetId, accentColor }) => {
   const dispatch = useDispatch()
+    const user = useSelector((state) => state.auth.userData)
+
 
   // Pull entries from Redux to derive past exercise names
   const allEntries = useSelector(state => state.entries.byWidgetId?.[widgetId] || [])
@@ -158,8 +165,11 @@ const GymQuickAddForm = ({ widgetId, accentColor }) => {
 
   // ── Handlers ──
   const onSubmitWorkout = async (data) => {
-    // YOUR LOGIC:
-    const payload = {
+    try{
+        // Safety check for the user
+        if (!user?.id) return;
+
+        const payload = {
       entry_type:    'workout',
       exercise_name: data.exercise_name,
       muscle_group:  data.muscle_group,
@@ -168,13 +178,20 @@ const GymQuickAddForm = ({ widgetId, accentColor }) => {
       weight_kg:     Number(data.weight_kg),
       notes:         data.notes || null,
     }
-    const entry = await entryService.createEntry(widgetId, payload, data.entry_date)
+    const entry = await entryService.addEntry(widgetId, user.id, payload, data.entry_date)
 
     if(entry){
-        dispatch(addEntry(entry))
+        dispatch(addEntry({entry,widget_id:widgetId}))
         dispatch(closeModal())
 
     }
+
+    }
+    catch (error) {
+      console.error("Error creating entry:", error)
+    }
+    // YOUR LOGIC:
+    
   }
 
   const onSubmitDiet = async (data) => {
@@ -201,7 +218,7 @@ const GymQuickAddForm = ({ widgetId, accentColor }) => {
       water_target:        Number(data.water_target),
       weekly_workout_goal: Number(data.weekly_workout_goal),
     }
-    const updated = await widgetsService.updateWidget(widgetId, { config: updatedConfig })
+    const updated = await widgetService.updateWidget(widgetId, { config: updatedConfig })
     if (updated){
         dispatch(updateWidget(updated))
         dispatch(closeModal())

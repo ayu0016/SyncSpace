@@ -38,12 +38,12 @@ const AnalyticsEngine = {
     const now = new Date();
     const sevenDaysAgo = subDays(now, 7);
 
-    const entriesToday = entries.filter(e => isToday(parseISO(e.date)));
-    const entriesYesterday = entries.filter(e => isYesterday(parseISO(e.date)));
-    const entriesThisWeek = entries.filter(e => isWithinInterval(parseISO(e.date), { start: sevenDaysAgo, end: now }));
+    const entriesToday = entries.filter(entry => isToday(parseISO(entry.date)));
+    const entriesYesterday = entries.filter(entry => isYesterday(parseISO(entry.date)));
+    const entriesThisWeek = entries.filter(entry => isWithinInterval(parseISO(entry.date), { start: sevenDaysAgo, end: now }));
 
     // 🔥 STREAK CALCULATOR
-    const uniqueDates = [...new Set(entries.map(e => e.date))];
+    const uniqueDates = [...new Set(entries.map(entry => entry.date))];
     let streak = 0;
     let currentDateToCheck = startOfDay(now);
 

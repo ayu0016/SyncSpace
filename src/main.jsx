@@ -16,6 +16,13 @@ import ResetPassword from './pages/ResetPassword'
 import LandingPage from './pages/LandingPage.jsx';
 import AddTracker from './pages/AddTracker.jsx';
 import Profile from './pages/Profile.jsx';
+import AllWidget from './components/AllWidget.jsx';
+import DSADeepDive from './pages/deepdive/DSADeepDive.jsx';
+import GymDeepDive from './pages/deepdive/GymDeepDive.jsx';
+import MLDeepDive from './pages/deepdive/MLDeepDive.jsx';
+import KanbanDeepDive from './pages/deepdive/KanbanDeepDive.jsx';
+import CustomDeepDive from './pages/deepdive/CustomDeepDive.jsx';
+
 
 
 const router = createBrowserRouter([
@@ -24,7 +31,15 @@ const router = createBrowserRouter([
         element: <App />,  // ✅ always mounted, runs auth listener
         children: [
             { index: true, element: <LandingPage /> },
-            { path: 'dashboard', element: <Dashboard /> },
+            { path: 'dashboard/', element: <Dashboard /> , children:[
+                // nested routes for dashboard widgets and entries will go here
+                {index: true, element: <AllWidget /> },
+                {path:'dsaDeepDive/', element:<DSADeepDive/>},
+                {path:'gymDeepDive/', element:<GymDeepDive/>},
+                {path:'mlDeepDive/', element:<MLDeepDive/>},
+                {path:'kanbanDeepDive/', element:<KanbanDeepDive/>},
+                {path:'customDeepDive/', element:<CustomDeepDive/>}
+            ]},
             { path: 'login', element: <Login /> },
             { path: 'signup', element: <SignUp /> },
             { path: 'forgot-password', element: <ForgotPassword /> },

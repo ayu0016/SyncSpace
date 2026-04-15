@@ -15,15 +15,15 @@ import { entriesToHeatmapData } from '../../utils/heatmapUtils'
 import { formatRelativeDate, getDaysAgo } from '../../utils/dateUtils'
 
 // Shared components
-import DeepDiveHeader from '../../components/deepdive/DeepDiveHeader'
+import DeepDiveHeader from '../../components/ui/deepdive/DeepDiveHeader'
 import SectionLabel from '../../components/ui/SectionLabel'
 import StatsBar from '../../components/ui/StatsBar'
 import GlassCard from '../../components/ui/GlassCard'
 import TabSwitcher from '../../components/ui/TabSwitcher'
-import ActivityHeatmap from '../../components/deepdive/ActivityHeatmap'
+import ActivityHeatmap from '../../components/ui/deepdive/ActivityHeatmap'
 import BarChart from '../../components/ui/charts/BarChart'
 import LineChart from '../../components/ui/charts/LineChart'
-import RecentLog from '../../components/deepdive/RecentLog'
+import RecentLog from '../../components/ui/deepdive/RecentLog'
 
 // ─── CONSTANTS ────────────────────────────────────────────────────────────────
 

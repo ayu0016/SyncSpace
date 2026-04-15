@@ -16,7 +16,7 @@ const MODAL_CONFIG = {
   gym: {
     title: 'Log Gym Entry',
     icon: Dumbbell,
-    accent: '#10b981',
+    accent: '#f59e0b',
   },
   ml: {
     title: 'Log ML Session',
@@ -26,7 +26,7 @@ const MODAL_CONFIG = {
   kanban: {
     title: 'Add Task',
     icon: Kanban,
-    accent: '#f59e0b',
+    accent: '#10b981',
   },
 }
 
@@ -145,7 +145,7 @@ const QuickAddModal = () => {
             </h2>
           </div>
 
-          // close button
+          
           <button
             onClick={handleClose}
             className="w-8 h-8 rounded-full flex items-center justify-center text-white/40 hover:text-white hover:bg-white/8 active:scale-95 transition-all duration-200"

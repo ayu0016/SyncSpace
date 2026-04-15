@@ -20,8 +20,6 @@ export default function WidgetCard({ widget, children, buttonLabel }) {
     )
     const onLogClick=(e) =>{
         e.stopPropagation()
-        console.log('widget type:', widget.type)
-        console.log('widget id:', widget.id)
         dispatch(openModal(widget.type))
         dispatch(setActiveWidget(widget.id))
 

@@ -26,7 +26,10 @@ const PLATFORM_OPTIONS = [
   { label: 'Other',         value: 'other'         },
 ]
 
-const today = () => new Date().toISOString().split('T')[0]
+const today = () => {
+  const d = new Date();
+  return d.toLocaleDateString('en-CA');
+}
 
 const DSAQuickAddForm = ({ widgetId, accentColor }) => {
   const dispatch = useDispatch()
@@ -73,7 +76,7 @@ const DSAQuickAddForm = ({ widgetId, accentColor }) => {
       const entry = await entryService.addEntry(widgetId, user.id, payload, data.entry_date)
       
       if (entry) {
-        dispatch(addEntry(entry))
+        dispatch(addEntry({entry,widget_id:widgetId}))
         dispatch(closeModal())
       }
     } catch (error) {

@@ -1,7 +1,7 @@
 import React from 'react'
-import ActivityCalendar from 'react-activity-calendar'
+import {ActivityCalendar} from 'react-activity-calendar'
 import { Tooltip } from 'react-tooltip'
-import GlassCard from '../ui/GlassCard'
+import GlassCard from '../GlassCard'
 
 const getHeatmapTheme = (accentColor) => {
   // convert hex to rgb for opacity manipulation

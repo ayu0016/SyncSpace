@@ -15,7 +15,7 @@ const WIDGET_MAP = {
   custom: { Component: customCardContent, buttonLabel: '+ Log Entry'     },
 }
 
-export default function AllWidget() {
+function AllWidget() {
   // TODO: get widgets and entries from Redux store
   const widgets = useSelector(state => state.widgets.widgets)
   const entries = useSelector(state => state.entries.entries)
@@ -42,3 +42,5 @@ export default function AllWidget() {
     </div>
   )
 }
+
+export default AllWidget

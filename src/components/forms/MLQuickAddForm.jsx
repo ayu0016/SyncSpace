@@ -35,8 +35,10 @@ const DURATION_PRESETS = [
 
 const UNDERSTANDING_LEVELS = [1, 2, 3, 4, 5]
 
-const today = () => new Date().toISOString().split('T')[0]
-
+const today = () => {
+  const d = new Date();
+  return d.toLocaleDateString('en-CA');
+}
 // ─── Sub-components ───────────────────────────────────────────────────────────
 
 // Shared label style
@@ -284,7 +286,7 @@ const MLQuickAddForm = ({ widgetId, accentColor = '#8b5cf6' }) => {
       notes:               data.notes || null,
     }
     const entry = await entryService.addEntry(widgetId, user.id, payload, data.entry_date)
-    dispatch(addEntry(entry))
+        dispatch(addEntry({entry,widget_id:widgetId}))
     dispatch(closeModal())
   }
 

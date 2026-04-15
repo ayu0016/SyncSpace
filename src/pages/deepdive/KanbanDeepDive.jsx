@@ -8,7 +8,7 @@ import { updateEntry } from '../../store/entriesSlice'
 import useWidgetEntries from '../../hooks/useWidgetEntries'
 import { entryService } from '../../supabase/entryServices'
 import { formatShortDate } from '../../utils/dateUtils'
-import DeepDiveHeader from '../../components/deepdive/DeepDiveHeader'
+import DeepDiveHeader from '../../components/ui/deepdive/DeepDiveHeader'
 import SectionLabel from '../../components/ui/SectionLabel'
 
 // ─── CONSTANTS ────────────────────────────────────────────────────────────────
