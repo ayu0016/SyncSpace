@@ -20,7 +20,7 @@ import GlassCard from '../../components/ui/GlassCard'
 import ActivityHeatmap from '../../components/ui/deepdive/ActivityHeatmap'
 import BubbleChart from '../../components/ui/deepdive/BubbleChart'
 import RecentLog from '../../components/ui/deepdive/RecentLog'
-import Sparkline from '../../components/ui/charts/Sparkline'
+import Sparkline from '../../components/ui/charts/SparkLine'
 
 // ─── CONSTANTS ────────────────────────────────────────────────────────────────
 

@@ -2,7 +2,7 @@
 import WidgetCard from './widgets/WidgetCard'
 import DSACardContent from './widgets/dsa/DsaCardContent'
 import GymCardContent from './widgets/gym/GymCardContent'
-import MLCardContent from './widgets/ml/MLCardContent'
+import MLCardContent from './widgets/ml/MlCardContent'
 import KanbanCardContent from './widgets/kanban/KanbanCardContent'
 import { useSelector } from 'react-redux'
 import customCardContent from './widgets/custom/CustomCardContent'
