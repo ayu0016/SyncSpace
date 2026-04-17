@@ -15,9 +15,14 @@ export default function WidgetCard({ widget, children, buttonLabel }) {
     const navigate=useNavigate()
     const dispatch=useDispatch()
 
-    const OnCardClick =() =>(
-        navigate(`/${widget.name}`)
-    )
+    const OnCardClick =() =>{
+        if(widget.name==="DSA Mastery")     navigate('dsa')
+        if(widget.name==="Gym & Diet")      navigate('gym')
+        if(widget.name==="ML Learning")     navigate('ml')
+        if(widget.name==="Kanban Board")          navigate('kanban')
+        dispatch(setActiveWidget(widget.id ))
+    }   
+       
     const onLogClick=(e) =>{
         e.stopPropagation()
         dispatch(openModal(widget.type))

@@ -24,8 +24,6 @@ const uiSlice = createSlice({
     CloseTodo: (state)=>{
         state.isTodoOpen=false
     }
-
-
   }
 })
 

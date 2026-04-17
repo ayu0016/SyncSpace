@@ -1,6 +1,5 @@
 import { useState, useMemo } from 'react'
-import { useParams } from 'react-router-dom'
-import { useDispatch } from 'react-redux'
+import { useDispatch ,useSelector} from 'react-redux'
 import { format } from 'date-fns'
 import { AlertCircle } from 'lucide-react'
 import { openModal, setActiveWidget } from '../../store/uiSlice'
@@ -439,7 +438,7 @@ const InsightCard = ({ label, value, accentColor, bgColor, borderColor, Icon }) 
 // ─── MAIN PAGE ────────────────────────────────────────────────────────────────
 
 const KanbanDeepDive = () => {
-  const { widgetId } = useParams()
+  const widgetId= useSelector(state => state.ui.activeWidgetId)
   const dispatch     = useDispatch()
 
   const { entries, loading } = useWidgetEntries(widgetId)

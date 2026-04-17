@@ -1,6 +1,5 @@
 import { useState, useMemo, useEffect } from 'react'
-import { useParams } from 'react-router-dom'
-import { useDispatch } from 'react-redux'
+import { useDispatch,useSelector } from 'react-redux'
 import { Settings } from 'lucide-react'
 import { format, subDays, startOfWeek } from 'date-fns'
 import { openModal, setActiveWidget } from '../../store/uiSlice'
@@ -293,7 +292,7 @@ const ProteinConsistency = ({ dietEntries, proteinTarget }) => {
 // ─── MAIN PAGE ────────────────────────────────────────────────────────────────
 
 const GymDeepDive = () => {
-  const { widgetId }              = useParams()
+  const widgetId= useSelector(state => state.ui.activeWidgetId)
   const dispatch                  = useDispatch()
   const [activeTab, setActiveTab] = useState('Workout')
   const [showGoals, setShowGoals] = useState(false)

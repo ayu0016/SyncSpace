@@ -1,5 +1,7 @@
 import { useNavigate } from 'react-router-dom'
 import { ChevronLeft } from 'lucide-react'
+import {useDispatch} from 'react-redux'
+import { setActiveWidget } from '../../../store/uiSlice'
 
 // title        → string e.g. "Gym", "DSA Learning", "ML Learning"
 // subtitle     → string e.g. "Track every rep. Fuel every session."
@@ -18,6 +20,7 @@ const DeepDiveHeader = ({
   rightExtra = null,
 }) => {
   const navigate = useNavigate()
+  const dispatch = useDispatch()
 
   return (
     <div
@@ -36,7 +39,11 @@ const DeepDiveHeader = ({
 
           {/* Back button */}
           <button
-            onClick={() => navigate('/dashboard')}
+            onClick={() => {
+                navigate('/dashboard')
+                dispatch(setActiveWidget(null))
+                
+            }}
             className="flex items-center justify-center transition-colors duration-200 cursor-pointer"
             style={{ color: 'rgba(255,255,255,0.35)' }}
             onMouseEnter={e => e.currentTarget.style.color = '#ffffff'}

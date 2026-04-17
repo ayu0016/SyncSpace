@@ -1,6 +1,5 @@
 import { useState, useMemo } from 'react'
-import { useParams } from 'react-router-dom'
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { openModal, setActiveWidget } from '../../store/uiSlice'
 
 // Hooks
@@ -464,7 +463,7 @@ const TopicBreakdown = ({ entries }) => {
 // ─── MAIN PAGE ────────────────────────────────────────────────────────────────
 
 const DSADeepDive = () => {
-  const { widgetId } = useParams()
+  const widgetId= useSelector(state => state.ui.activeWidgetId)
   const dispatch     = useDispatch()
 
   const { entries, loading }   = useWidgetEntries(widgetId)

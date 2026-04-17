@@ -9,16 +9,17 @@ const DonutChart = ({ segments = [], centerLabel = 'TOTAL' }) => {
   const total         = segments.reduce((sum, s) => sum + s.count, 0)
 
   // Build arc data
-  // For each segment we need:
-  // strokeDasharray  → `${arc} ${circumference}` draws only the arc length then leaves a gap
-  // strokeDashoffset → circumference - cumulativeArc positions the start of this segment
-  // We rotate the whole SVG -90deg so it starts from the top
   let cumulativeArc = 0
   const arcs = segments.map((segment) => {
-    const arc    = (segment.count / total) * circumference
+    const arc = total > 0 ? (segment.count / total) * circumference : 0
+    
+    // FIX: The gap must be exactly the remaining circumference, not the full circumference.
+    // Otherwise, the offset math pushes subsequent segments into the invisible gap.
+    const gap = Math.max(circumference - arc, 0)
     const offset = circumference - cumulativeArc
+    
     cumulativeArc += arc
-    return { ...segment, arc, offset }
+    return { ...segment, arc, gap, offset }
   })
 
   // Center display
@@ -50,6 +51,9 @@ const DonutChart = ({ segments = [], centerLabel = 'TOTAL' }) => {
 
           {/* Segments */}
           {arcs.map((arc, i) => {
+            // Do not render if count is 0 to prevent the dot artifact
+            if (arc.count === 0) return null
+
             const isHovered = hoveredIndex === i
             const isDimmed  = hoveredIndex !== null && !isHovered
             const sw        = isHovered ? strokeWidth + 2 : strokeWidth
@@ -64,7 +68,8 @@ const DonutChart = ({ segments = [], centerLabel = 'TOTAL' }) => {
                 stroke={arc.color}
                 strokeWidth={sw}
                 strokeLinecap="round"
-                strokeDasharray={`${arc.arc} ${circumference}`}
+                // FIX: Apply the properly calculated arc and gap lengths here
+                strokeDasharray={`${arc.arc} ${arc.gap}`}
                 strokeDashoffset={arc.offset}
                 className="cursor-pointer"
                 style={{
@@ -78,10 +83,8 @@ const DonutChart = ({ segments = [], centerLabel = 'TOTAL' }) => {
           })}
         </svg>
 
-        {/* Center Text — counter-rotated so it stays upright */}
-        <div
-          className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none"
-        >
+        {/* Center Text */}
+        <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
           <span
             className="font-sans font-bold text-[36px] leading-[1.1]"
             style={{

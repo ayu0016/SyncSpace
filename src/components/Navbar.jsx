@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
+import { setActiveWidget } from "../store/uiSlice";
 
 // ── Redux actions ──
 // openModal("addWidget") → triggers the add-widget modal via uiSlice
@@ -59,6 +60,8 @@ export default function Navbar() {
   // ── Logo click → navigate to dashboard ──
   function handleLogoClick() {
     navigate("/dashboard");
+    dispatch(setActiveWidget(null));  // close any open widget in the dashboard
+
   }
 
   // ── Add New Tracker button → open add-widget modal ──

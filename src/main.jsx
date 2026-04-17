@@ -41,11 +41,11 @@ const router = createBrowserRouter([
                 path: 'dashboard/', element: <Dashboard /> , 
                 children:[
                     {index: true, element: <AllWidget /> },
-                    {path:'dsaDeepDive/', element:<DSADeepDive/>},
-                    {path:'gymDeepDive/', element:<GymDeepDive/>},
-                    {path:'mlDeepDive/', element:<MLDeepDive/>},
-                    {path:'kanbanDeepDive/', element:<KanbanDeepDive/>},
-                    {path:'customDeepDive/', element:<CustomDeepDive/>}
+                    {path:'dsa', element:<DSADeepDive/>},
+                    {path:'gym', element:<GymDeepDive/>},
+                    {path:'ml', element:<MLDeepDive/>},
+                    {path:'kanban', element:<KanbanDeepDive/>},
+                    {path:'customDeepDive', element:<CustomDeepDive/>}
                 ]},
 
         ]},

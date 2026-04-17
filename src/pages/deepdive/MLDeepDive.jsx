@@ -1,6 +1,5 @@
 import { useState, useMemo } from 'react'
-import { useParams } from 'react-router-dom'
-import { useDispatch } from 'react-redux'
+import { useDispatch,useSelector } from 'react-redux'
 import { startOfWeek } from 'date-fns'
 import { openModal, setActiveWidget } from '../../store/uiSlice'
 
@@ -389,7 +388,7 @@ const ResourceIcon = ({ type }) => {
 // ─── MAIN PAGE ────────────────────────────────────────────────────────────────
 
 const MLDeepDive = () => {
-  const { widgetId } = useParams()
+  const widgetId= useSelector(state => state.ui.activeWidgetId)
   const dispatch     = useDispatch()
 
   const { entries, loading } = useWidgetEntries(widgetId)
