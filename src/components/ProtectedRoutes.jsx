@@ -2,13 +2,16 @@ import React from 'react'
 import { Suspense } from 'react'
 import { Navigate, Outlet } from 'react-router-dom'
 import { useSelector } from 'react-redux'
+
+import FullScreenSpinner from './FullScreenSpinner'
+
 function ProtectedRoutes() {
-  const { isAuthenticated } = useSelector((state) => state.auth)
-  if (!isAuthenticated) {
+    const User = useSelector((state) => state.auth.userData)
+  if (!User) {
     return <Navigate to="/login" />
   }
   return (
-    <Suspense fallback={<div>Loading...</div>}>
+    <Suspense fallback={<FullScreenSpinner />}>
       <Outlet />
     </Suspense>
   )

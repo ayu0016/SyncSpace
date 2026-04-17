@@ -3,8 +3,8 @@ import Input from "../components/Input"
 import { Link, useNavigate } from "react-router-dom"
 import { useForm } from "react-hook-form"
 import { authService } from "../supabase/auth"
-import { useState } from "react"
-import { useDispatch } from "react-redux"
+import { useState , useEffect, use} from "react"
+import { useDispatch , useSelector } from "react-redux"
 
 export default function Login() {
 
@@ -13,8 +13,15 @@ export default function Login() {
   const [isLoading, setIsLoading] = useState(false)
   const navigate = useNavigate()
   const dispatch=useDispatch()
+  const User = useSelector((state) => state.auth.userData)  
 
   const { register, handleSubmit, formState: { errors } } = useForm()
+
+  useEffect(() => {
+    if (User) {
+      navigate('/dashboard')
+    }
+  }, [User, navigate])
 
 
   const onSubmit = async (data) => {
@@ -22,9 +29,6 @@ export default function Login() {
     setAuthError(null)
     try {
       const user =await authService.login(data)
-      if (user) {
-        navigate('/dashboard')        
-      }
     } catch (error) {
       setAuthError(error.message)
     } finally {

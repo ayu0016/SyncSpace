@@ -22,6 +22,7 @@ import GymDeepDive from './pages/deepdive/GymDeepDive.jsx';
 import MLDeepDive from './pages/deepdive/MLDeepDive.jsx';
 import KanbanDeepDive from './pages/deepdive/KanbanDeepDive.jsx';
 import CustomDeepDive from './pages/deepdive/CustomDeepDive.jsx';
+import ProtectedRoutes from './components/ProtectedRoutes.jsx';
 
 
 
@@ -31,19 +32,23 @@ const router = createBrowserRouter([
         element: <App />,  // ✅ always mounted, runs auth listener
         children: [
             { index: true, element: <LandingPage /> },
-            { path: 'dashboard/', element: <Dashboard /> , children:[
-                // nested routes for dashboard widgets and entries will go here
-                {index: true, element: <AllWidget /> },
-                {path:'dsaDeepDive/', element:<DSADeepDive/>},
-                {path:'gymDeepDive/', element:<GymDeepDive/>},
-                {path:'mlDeepDive/', element:<MLDeepDive/>},
-                {path:'kanbanDeepDive/', element:<KanbanDeepDive/>},
-                {path:'customDeepDive/', element:<CustomDeepDive/>}
-            ]},
             { path: 'login', element: <Login /> },
             { path: 'signup', element: <SignUp /> },
             { path: 'forgot-password', element: <ForgotPassword /> },
             { path: 'reset-password', element: <ResetPassword /> },
+            {element: <ProtectedRoutes />, children: [
+                {
+                path: 'dashboard/', element: <Dashboard /> , 
+                children:[
+                    {index: true, element: <AllWidget /> },
+                    {path:'dsaDeepDive/', element:<DSADeepDive/>},
+                    {path:'gymDeepDive/', element:<GymDeepDive/>},
+                    {path:'mlDeepDive/', element:<MLDeepDive/>},
+                    {path:'kanbanDeepDive/', element:<KanbanDeepDive/>},
+                    {path:'customDeepDive/', element:<CustomDeepDive/>}
+                ]},
+
+        ]},
             { path: 'add-tracker', element: <AddTracker /> },
             { path: 'profile', element: <Profile /> },
         ]

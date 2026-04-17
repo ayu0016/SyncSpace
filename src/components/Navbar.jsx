@@ -76,7 +76,7 @@ export default function Navbar() {
 
   async function handleLogout() {
     setDropdownOpen(false);
-    await authService.signOut();     // clears Supabase session
+    await authService.logout();     // clears Supabase session
     dispatch(logout());              // clears Redux auth state
     navigate("/");                   // redirect to landing
   }
