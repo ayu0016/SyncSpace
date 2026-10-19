@@ -121,12 +121,13 @@ const KanbanQuickAddForm = ({ widgetId, accentColor }) => {
 
             // YOUR LOGIC:
     const payload = {
-      task_id:  crypto.randomUUID(),
-      title:    data.title,
-      status:   data.status,
-      priority: data.priority,
-      due_date: data.due_date || null,
-      tags:     tags,
+      task_id:    crypto.randomUUID(),
+      task_title: data.title,
+      title:      data.title,
+      status:     data.status,
+      priority:   data.priority,
+      due_date:   data.due_date || null,
+      tags:       tags,
     }
     const entry = await entryService.addEntry(widgetId, user.id, payload, data.entry_date)  
       if(entry){

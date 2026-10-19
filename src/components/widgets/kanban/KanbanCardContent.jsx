@@ -20,8 +20,8 @@ export default function KanbanCardContent({ widget, accent }) {
 
   // TODO: get most recently updated task
   // sort entries by updated_at desc, take first
-  const lastTaskTitle = buckets.latestEntry?.payload?.task_title ??'—'      // most recently updated entry's payload.task_title
-  const lastTaskPriority = buckets.latestEntry?.payload?.priority ??'—'   // most recently updated entry's payload.priority → 'low' | 'medium' | 'high'
+  const lastTaskTitle = buckets.latestEntry?.payload?.task_title || buckets.latestEntry?.payload?.title || '—'
+  const lastTaskPriority = buckets.latestEntry?.payload?.priority ?? '—'
 
   // Priority badge colors
   const priorityColors = {

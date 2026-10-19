@@ -13,8 +13,9 @@ const widgetsSlice = createSlice({
         state.widgets.push(action.payload)
     },
     updateWidget: (state, action) => {
-        const { id, updatedWidget } = action.payload
-        state.widgets = state.widgets.map((widget) => (widget.id === id)?{...widget,...updateWidget}:widget)
+        const id = action.payload.id || action.payload.updatedWidget?.id
+        const updatedWidget = action.payload.updatedWidget || action.payload
+        state.widgets = state.widgets.map((widget) => (widget.id === id) ? { ...widget, ...updatedWidget } : widget)
     },
     removeWidget: (state, action) => {
         state.widgets = state.widgets.filter(widget => widget.id !== action.payload)

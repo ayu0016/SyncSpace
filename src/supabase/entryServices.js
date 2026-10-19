@@ -18,7 +18,7 @@ class EntryService {
     return data
   }
 
-  // ── GET ALL ENTRIES FOR A WIDGET ───────────────────
+  // ── GET ALL ENTRIES FOR A USER ───────────────────
   async getAllEntries(userId) {
     const { data, error } = await supabase
         .from('entries')
@@ -28,7 +28,19 @@ class EntryService {
 
     if (error) throw error
     return data
-}
+  }
+
+  // ── GET ENTRIES FOR A SPECIFIC WIDGET ──────────────
+  async getEntriesByWidgetId(widgetId) {
+    const { data, error } = await supabase
+      .from('entries')
+      .select('*')
+      .eq('widget_id', widgetId)
+      .order('date', { ascending: false })
+
+    if (error) throw error
+    return data
+  }
 
   // ── GET RECENT ENTRIES (last 30 days) ──────────────
     async getRecentEntries(userId) {

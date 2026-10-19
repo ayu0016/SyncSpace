@@ -15,12 +15,13 @@ export default function WidgetCard({ widget, children, buttonLabel }) {
     const navigate=useNavigate()
     const dispatch=useDispatch()
 
-    const OnCardClick =() =>{
-        if(widget.name==="DSA Mastery")     navigate('dsa')
-        if(widget.name==="Gym & Diet")      navigate('gym')
-        if(widget.name==="ML Learning")     navigate('ml')
-        if(widget.name==="Kanban Board")          navigate('kanban')
-        dispatch(setActiveWidget(widget.id ))
+    const OnCardClick = () => {
+        dispatch(setActiveWidget(widget.id))
+        if (widget.type === 'custom') {
+            navigate('customDeepDive')
+        } else if (widget.type) {
+            navigate(widget.type)
+        }
     }   
        
     const onLogClick=(e) =>{
@@ -34,7 +35,7 @@ export default function WidgetCard({ widget, children, buttonLabel }) {
         <div
         onClick={OnCardClick}
         className="
-            relative overflow-hiddenO
+            relative overflow-hidden
             rounded-[14px] bg-white/4 border border-white/8
             p-4 cursor-pointer
             transition-all duration-200

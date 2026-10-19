@@ -24,7 +24,7 @@ export default function GymCardContent({ widget, accent }) {
   const caloriesToday = todayStats.calories
 
   // TODO: protein from today's diet entry
-  const proteinToday = todayStats.protien_g
+  const proteinToday = todayStats.protein_g
   
   // TODO: last entry — already sorted newest first from supabase
   const lastEntry        = buckets.latestEntry

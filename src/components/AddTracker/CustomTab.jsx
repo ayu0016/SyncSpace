@@ -1,4 +1,5 @@
 import { EMOJIS, ACCENT_COLORS } from './predefinedTracker'
+import Input from '../Input'
 
 export default function CustomTab({
   customName,
@@ -13,18 +14,12 @@ export default function CustomTab({
       <div className="flex flex-col gap-5">
 
         {/* Tracker Name */}
-        <div className="flex flex-col gap-2">
-          <label className="text-[10px] font-extrabold tracking-[0.15em] uppercase text-outline">
-            Tracker Name
-          </label>
-          <input
-            type="text"
-            value={customName}
-            onChange={e => setCustomName(e.target.value)}
-            placeholder="Enter tracker name..."
-            className="w-full bg-[#1a1a2e] border border-white/10 rounded-[10px] px-3.5 py-2.5 text-[13px] text-white placeholder-white/20 outline-none transition-all duration-200 focus:border-primary-container/50 focus:shadow-[0_0_0_2px_rgba(74,158,237,0.1)]"
-          />
-        </div>
+        <Input
+          label="Tracker Name"
+          value={customName}
+          onChange={e => setCustomName(e.target.value)}
+          placeholder="Enter tracker name..."
+        />
 
         {/* Icon Picker */}
         <div className="flex flex-col gap-2">

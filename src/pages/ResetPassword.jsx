@@ -1,5 +1,6 @@
 import Button from "../components/Button"
 import Input from "../components/Input"
+import Container from "../components/Container"
 import { useNavigate } from "react-router-dom"
 import { useForm } from "react-hook-form"
 import { authService } from "../supabase/auth"
@@ -39,7 +40,7 @@ export default function ResetPassword() {
         <div className="border-l border-b border-primary-container/40 w-16 h-16 rounded-bl-xl"></div>
       </div>
 
-      <main className="w-full max-w-105 px-6 py-12">
+      <Container className="py-12">
         <div className="glass-card rounded-xl p-8 flex flex-col items-center shadow-2xl shadow-primary/5">
 
           {/* Logo */}
@@ -130,7 +131,7 @@ export default function ResetPassword() {
           </form>
 
         </div>
-      </main>
+      </Container>
 
       {/* Copyright */}
       <div className="fixed bottom-0 w-full flex justify-center px-8 py-6 pointer-events-none">

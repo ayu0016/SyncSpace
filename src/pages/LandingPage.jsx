@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useSelector } from 'react-redux';
 import { 
   LayoutGrid, 
   Gamepad2, 
@@ -16,7 +17,15 @@ import {
 } from 'lucide-react';
 
 export default function LandingPage() {
-    const navigate =useNavigate();
+  const navigate = useNavigate();
+  const user = useSelector((state) => state.auth.userData);
+
+  useEffect(() => {
+    if (user) {
+      navigate('/dashboard', { replace: true });
+    }
+  }, [user, navigate]);
+
   // Inject the custom font from Google Fonts to match your exact typography spec
   const scrollToSection = (id) => {
     const element = document.getElementById(id);

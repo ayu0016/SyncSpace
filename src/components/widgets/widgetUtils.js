@@ -138,6 +138,8 @@ export const useAnalytics = (widget) => {
     return comps;
   }, [todayStats, yesterdayStats, stringifiedFields]);
 
+  const stringifiedTopFields = topFields.join(',');
+
   // 6. Generate Insights (Top Values)
   const insights = useMemo(() => {
     const result = {};
@@ -147,7 +149,7 @@ export const useAnalytics = (widget) => {
       result[keyName] = AnalyticsEngine.getTop(entries, field);
     });
     return result;
-  }, [entries, topFields.join(',')]);
+  }, [entries, stringifiedTopFields]);
 
   // 7. Return everything to the UI component
   return {

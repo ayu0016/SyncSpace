@@ -2,12 +2,16 @@ import { supabase } from './supabase'
 
 class AuthService {
 
-  async signUp({email, password, username}) {
+  async signUp({email, password, fullName, username}) {
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
-        data: { username }
+        emailRedirectTo: `${window.location.origin}/dashboard`,
+        data: { 
+          full_name: fullName || username,
+          username: username || fullName 
+        }
       }
     })
     if (error) throw error

@@ -9,6 +9,7 @@ import { entryService } from '../../supabase/entryServices'
 import { formatShortDate } from '../../utils/dateUtils'
 import DeepDiveHeader from '../../components/ui/deepdive/DeepDiveHeader'
 import SectionLabel from '../../components/ui/SectionLabel'
+import GlassCard from '../../components/ui/GlassCard'
 
 // ─── CONSTANTS ────────────────────────────────────────────────────────────────
 
@@ -186,7 +187,7 @@ const TaskCard = ({ entry, onDragStart, onDragEnd }) => {
             margin:          0,
           }}
         >
-          {payload.task_title || 'Untitled Task'}
+          {payload.task_title || payload.title || 'Untitled Task'}
         </h3>
         <PriorityBadge priority={payload.priority} isDone={isDone} />
       </div>
@@ -273,16 +274,9 @@ const KanbanColumn = ({ column, tasks, onDrop, onDragStart, onDragEnd }) => {
   const scrollClass = `kanban-scroll-${column.id}`
 
   return (
-    <div
-      className="rounded-[12px] overflow-hidden flex flex-col"
-      style={{
-        background:      isDragOver ? 'rgba(255,255,255,0.04)' : 'rgba(255,255,255,0.02)',
-        backdropFilter:  'blur(12px)',
-        WebkitBackdropFilter: 'blur(12px)',
-        border:          `1px solid ${isDragOver ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.06)'}`,
-        minHeight:       '400px',
-        transition:      'background 200ms ease, border-color 200ms ease',
-      }}
+    <GlassCard
+      isDragOver={isDragOver}
+      className="overflow-hidden flex flex-col min-h-[400px]"
     >
       {/* Custom scrollbar style per column */}
       <style>{`
@@ -383,20 +377,15 @@ const KanbanColumn = ({ column, tasks, onDrop, onDragStart, onDragEnd }) => {
           ))
         )}
       </div>
-    </div>
+    </GlassCard>
   )
 }
 
 // Insight card — generic reusable within this page
 const InsightCard = ({ label, value, accentColor, bgColor, borderColor, Icon }) => (
-  <div
-    className="rounded-[12px] flex items-center gap-[14px]"
-    style={{
-      background:  'rgba(255,255,255,0.025)',
-      border:      `1px solid ${borderColor}`,
-      padding:     '16px 20px',
-      backdropFilter: 'blur(12px)',
-    }}
+  <GlassCard
+    className="flex items-center gap-[14px] px-5 py-4"
+    style={{ borderColor }}
   >
     <div
       className="shrink-0 flex items-center justify-center rounded-[8px]"
@@ -432,7 +421,7 @@ const InsightCard = ({ label, value, accentColor, bgColor, borderColor, Icon }) 
         {value}
       </p>
     </div>
-  </div>
+  </GlassCard>
 )
 
 // ─── MAIN PAGE ────────────────────────────────────────────────────────────────
@@ -695,14 +684,8 @@ const KanbanDeepDive = () => {
               />
 
               {/* Completion Rate */}
-              <div
-                className="rounded-[12px] flex items-center gap-[14px] relative overflow-hidden"
-                style={{
-                  background:  'linear-gradient(135deg, rgba(255,255,255,0.025), rgba(34,197,94,0.04))',
-                  border:      '1px solid rgba(34,197,94,0.2)',
-                  padding:     '16px 20px',
-                  backdropFilter: 'blur(12px)',
-                }}
+              <GlassCard
+                className="flex items-center gap-[14px] relative overflow-hidden px-5 py-4 border-emerald-500/20"
               >
                 {/* Background flare */}
                 <div
@@ -757,7 +740,7 @@ const KanbanDeepDive = () => {
                     {completionRate}%
                   </p>
                 </div>
-              </div>
+              </GlassCard>
 
             </div>
           </div>

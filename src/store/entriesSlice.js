@@ -7,13 +7,22 @@ const entriesSlice = createSlice({
   },
   reducers: {
     setEntries: (state, action) => {
-        state.entries= action.payload.reduce((acc,entry)=>{
-            if(!acc[entry.widget_id]){
-                acc[entry.widget_id]=[]
-            }
-            acc[entry.widget_id].push(entry)
-            return acc
-        },{})
+        if (!action.payload) return
+        if (Array.isArray(action.payload)) {
+            action.payload.forEach((entry) => {
+                if (!state.entries[entry.widget_id]) {
+                    state.entries[entry.widget_id] = []
+                }
+                const exists = state.entries[entry.widget_id].some(e => e.id === entry.id)
+                if (!exists) {
+                    state.entries[entry.widget_id].push(entry)
+                }
+            })
+        }
+    },
+    setWidgetEntries: (state, action) => {
+        const { widget_id, entries } = action.payload
+        state.entries[widget_id] = entries
     },
     addEntry: (state, action) => {
         const {widget_id,entry}=action.payload
@@ -35,5 +44,5 @@ const entriesSlice = createSlice({
   }
 })
 
-export const { setEntries, addEntry,removeEntry,updateEntry } = entriesSlice.actions
+export const { setEntries, setWidgetEntries, addEntry, removeEntry, updateEntry } = entriesSlice.actions
 export default entriesSlice.reducer

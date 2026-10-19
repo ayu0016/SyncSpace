@@ -5,6 +5,7 @@ import { closeModal } from '../../store/uiSlice'
 import { entryService } from '../../supabase/entryServices'
 import { addEntry } from '../../store/entriesSlice'
 import Button from '../Button'
+import Input from '../Input'
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -249,10 +250,18 @@ const MLQuickAddForm = ({ widgetId, accentColor = '#8b5cf6' }) => {
   const dispatch = useDispatch()
   const user = useSelector(state => state.auth.userData) // inside component — never outside
 
-  // YOUR LOGIC: fetch these from distinct entry payloads for this widget
-  // e.g. SELECT DISTINCT payload->>'topic' FROM entries WHERE widget_id = widgetId AND user_id = user.id
-  const pastTopics  = [] // TODO: replace with real fetched distinct topics
-  const pastSources = [] // TODO: replace with real fetched distinct sources
+  // Pull distinct topics and sources from logged entries for this widget
+  const entries = useSelector(state => state.entries.entries[widgetId] || [])
+  const pastTopics = [...new Set(
+    entries
+      .map(e => e.payload?.topic)
+      .filter(Boolean)
+  )]
+  const pastSources = [...new Set(
+    entries
+      .map(e => e.payload?.source)
+      .filter(Boolean)
+  )]
 
   const {
     control,
@@ -294,24 +303,15 @@ const MLQuickAddForm = ({ widgetId, accentColor = '#8b5cf6' }) => {
     <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5">
 
       {/* ── Date ── */}
-      <div>
-        <FieldLabel>Date</FieldLabel>
-        <input
-          type="date"
-          className={`w-full bg-surface-container-lowest border rounded-xl px-4 py-3 text-on-surface text-sm outline-none transition-all duration-200 font-mono
-            ${errors.entry_date
-              ? 'border-red-500/50 focus:ring-1 focus:ring-red-500/50'
-              : 'border-outline-variant/20 focus:ring-1 focus:ring-[#8b5cf6]/50 focus:border-[#8b5cf6]/50'
-            }`}
-          {...register('entry_date', {
-            required: { value: true, message: 'Date is required' },
-            max: { value: today(), message: 'Cannot log future entries' },
-          })}
-        />
-        {errors.entry_date && (
-          <p className="text-red-400 text-xs mt-1 ml-1">{errors.entry_date.message}</p>
-        )}
-      </div>
+      <Input
+        label="Date"
+        type="date"
+        error={errors.entry_date}
+        {...register('entry_date', {
+          required: { value: true, message: 'Date is required' },
+          max: { value: today(), message: 'Cannot log future entries' },
+        })}
+      />
 
       {/* ── Zone 1: WHAT did you study? ── */}
       <ZoneLabel>What did you study?</ZoneLabel>
@@ -336,15 +336,11 @@ const MLQuickAddForm = ({ widgetId, accentColor = '#8b5cf6' }) => {
       </div>
 
       {/* Subtopic — optional free text */}
-      <div>
-        <FieldLabel optional>Subtopic</FieldLabel>
-        <input
-          type="text"
-          placeholder="e.g. attention mechanism, k-means clustering"
-          className="w-full bg-surface-container-lowest border border-outline-variant/20 rounded-xl px-4 py-3 text-on-surface text-sm outline-none placeholder:text-outline-variant/40 focus:ring-1 focus:ring-[#8b5cf6]/50 focus:border-[#8b5cf6]/50 transition-all duration-200"
-          {...register('subtopic')}
-        />
-      </div>
+      <Input
+        label="Subtopic"
+        placeholder="e.g. attention mechanism, k-means clustering"
+        {...register('subtopic')}
+      />
 
       {/* Source — combobox */}
       <div>

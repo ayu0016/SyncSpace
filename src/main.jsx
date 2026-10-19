@@ -36,21 +36,25 @@ const router = createBrowserRouter([
             { path: 'signup', element: <SignUp /> },
             { path: 'forgot-password', element: <ForgotPassword /> },
             { path: 'reset-password', element: <ResetPassword /> },
-            {element: <ProtectedRoutes />, children: [
-                {
-                path: 'dashboard/', element: <Dashboard /> , 
-                children:[
-                    {index: true, element: <AllWidget /> },
-                    {path:'dsa', element:<DSADeepDive/>},
-                    {path:'gym', element:<GymDeepDive/>},
-                    {path:'ml', element:<MLDeepDive/>},
-                    {path:'kanban', element:<KanbanDeepDive/>},
-                    {path:'customDeepDive', element:<CustomDeepDive/>}
-                ]},
-
-        ]},
-            { path: 'add-tracker', element: <AddTracker /> },
-            { path: 'profile', element: <Profile /> },
+            {
+                element: <ProtectedRoutes />,
+                children: [
+                    {
+                        path: 'dashboard/',
+                        element: <Dashboard />,
+                        children: [
+                            { index: true, element: <AllWidget /> },
+                            { path: 'dsa', element: <DSADeepDive /> },
+                            { path: 'gym', element: <GymDeepDive /> },
+                            { path: 'ml', element: <MLDeepDive /> },
+                            { path: 'kanban', element: <KanbanDeepDive /> },
+                            { path: 'customDeepDive', element: <CustomDeepDive /> }
+                        ]
+                    },
+                    { path: 'add-tracker', element: <AddTracker /> },
+                    { path: 'profile', element: <Profile /> },
+                ]
+            },
         ]
     }
 ])

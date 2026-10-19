@@ -61,12 +61,12 @@ export default function Dashboard() {
         <div className="flex flex-1 flex-col lg:flex-row overflow-hidden">
 
             {/* Left Section — Widget Grid */}
-            <div className="w-full lg:w-14/20 p-4 overflow-y-auto">
+            <div className="w-full lg:w-14/20 p-4 sm:p-6 overflow-y-auto custom-scrollbar">
             <Outlet />
             </div>
 
             {/* Right Section — Desktop only */}
-            <div className="hidden lg:flex lg:w-6/20 p-4 border-l border-white/5 overflow-y-auto">
+            <div className="hidden lg:flex lg:w-6/20 p-4 border-l border-white/5 overflow-hidden">
             <TodoPanel />
             </div>
 

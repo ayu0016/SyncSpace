@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { setEntries } from '../store/entriesSlice'
+import { setWidgetEntries } from '../store/entriesSlice'
 import { entryService } from '../supabase/entryServices'
 
 const useWidgetEntries = (widgetId) => {
@@ -23,8 +23,8 @@ const useWidgetEntries = (widgetId) => {
       setLoading(true)
       setError(null)
       try {
-        const data = await entryService.getAllEntries(widgetId)
-        dispatch(setEntries(data))
+        const data = await entryService.getEntriesByWidgetId(widgetId)
+        dispatch(setWidgetEntries({ widget_id: widgetId, entries: data || [] }))
       } catch (err) {
         setError(err.message)
       } finally {
@@ -33,7 +33,7 @@ const useWidgetEntries = (widgetId) => {
     }
 
     fetchEntries()
-  }, [widgetId])
+  }, [widgetId, dispatch])
 
   return { entries, loading, error }
 }

@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { closeModal } from '../../store/uiSlice'
 import Input from '../Input'
 import Button from '../Button'
+import TabSwitcher from '../ui/TabSwitcher'
 
 //logical import
 import { entryService } from '../../supabase/entryServices'
@@ -116,7 +117,7 @@ const GymQuickAddForm = ({ widgetId, accentColor }) => {
 
 
   // Pull entries from Redux to derive past exercise names
-  const allEntries = useSelector(state => state.entries.byWidgetId?.[widgetId] || [])
+  const allEntries = useSelector(state => state.entries.entries[widgetId] || [])
   const pastExercises = [...new Set(
     allEntries
       .filter(e => e.payload?.entry_type === 'workout')
@@ -125,7 +126,7 @@ const GymQuickAddForm = ({ widgetId, accentColor }) => {
   )]
 
   // Pull current widget config for Goals tab defaults
-  const widget = useSelector(state => state.widgets.items?.find(w => w.id === widgetId))
+  const widget = useSelector(state => state.widgets.widgets?.find(w => w.id === widgetId))
   const config = widget?.config || {}
 
   const [activeTab, setActiveTab] = useState('Workout')
@@ -190,27 +191,28 @@ const GymQuickAddForm = ({ widgetId, accentColor }) => {
     catch (error) {
       console.error("Error creating entry:", error)
     }
-    // YOUR LOGIC:
-    
   }
 
   const onSubmitDiet = async (data) => {
-    // YOUR LOGIC:
-    const payload = {
-      entry_type: 'diet',
-      calories:   Number(data.calories),
-      protein_g:  Number(data.protein_g),
-      water_ml:   Number(data.water_ml),
-    }
-    const entry = await entryService.addEntry(widgetId, payload, data.entry_date)
-    if(entry){
-            dispatch(addEntry(entry))
-            dispatch(closeModal())
+    try {
+      if (!user?.id) return
+      const payload = {
+        entry_type: 'diet',
+        calories:   Number(data.calories),
+        protein_g:  Number(data.protein_g),
+        water_ml:   Number(data.water_ml),
+      }
+      const entry = await entryService.addEntry(widgetId, user.id, payload, data.entry_date)
+      if (entry) {
+        dispatch(addEntry({ entry, widget_id: widgetId }))
+        dispatch(closeModal())
+      }
+    } catch (error) {
+      console.error("Error creating diet entry:", error)
     }
   }
 
   const onSubmitGoals = async (data) => {
-    // YOUR LOGIC:
     const updatedConfig = {
       ...config,
       calorie_target:      Number(data.calorie_target),
@@ -228,29 +230,12 @@ const GymQuickAddForm = ({ widgetId, accentColor }) => {
     <div className="flex flex-col gap-4">
 
       {/* Tab toggle */}
-      <div className="flex w-full border-b border-white/[0.07] relative">
-        {TABS.map((tab) => (
-          <button
-            key={tab}
-            type="button"
-            onClick={() => setActiveTab(tab)}
-            className={`flex-1 pb-3 text-sm font-bold transition-all duration-300 relative ${
-              activeTab === tab ? 'text-white' : 'text-white/30 hover:text-white/60'
-            }`}
-          >
-            {tab}
-            {activeTab === tab && (
-              <div
-                className="absolute -bottom-px left-0 w-full h-0.5 rounded-t-full"
-                style={{
-                  backgroundColor: accentColor,
-                  boxShadow: `0 -2px 10px ${accentColor}, 0 0 4px ${accentColor}`,
-                }}
-              />
-            )}
-          </button>
-        ))}
-      </div>
+      <TabSwitcher
+        tabs={TABS}
+        activeTab={activeTab}
+        onChange={setActiveTab}
+        accentColor={accentColor}
+      />
 
       {/* ── Workout tab ── */}
       {activeTab === 'Workout' && (
