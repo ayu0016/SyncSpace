@@ -1,5 +1,5 @@
-import React, { useState, useRef, useEffect } from 'react'
-import { useForm } from 'react-hook-form'
+import { useState, useRef, useEffect } from 'react'
+import { useForm, Controller } from 'react-hook-form'
 import { useDispatch, useSelector } from 'react-redux'
 import { closeModal } from '../../store/uiSlice'
 import Input from '../Input'
@@ -39,7 +39,7 @@ const today = () => {
 
 
 // ─── Combobox ───────────────────────────────────────────────────────────────
-const ExerciseCombobox = ({ value, onChange, suggestions, error, accentColor }) => {
+const ExerciseCombobox = ({ value, onChange, suggestions, error }) => {
   const [open, setOpen] = useState(false)
   const [query, setQuery] = useState(value || '')
   const ref = useRef(null)
@@ -255,19 +255,19 @@ const GymQuickAddForm = ({ widgetId, accentColor }) => {
           />
 
           {/* Exercise combobox — populated from past entries */}
-          <ExerciseCombobox
-            value={workoutForm.watch('exercise_name')}
-            onChange={(val) => workoutForm.setValue('exercise_name', val, { shouldValidate: true })}
-            suggestions={pastExercises}
-            error={workoutForm.formState.errors.exercise_name}
-            accentColor={accentColor}
-          />
-          {/* Hidden field so RHF validation works */}
-          <input
-            type="hidden"
-            {...workoutForm.register('exercise_name', {
-              required: { value: true, message: 'Exercise name is required' }
-            })}
+          <Controller
+            name="exercise_name"
+            control={workoutForm.control}
+            rules={{ required: { value: true, message: 'Exercise name is required' } }}
+            render={({ field }) => (
+              <ExerciseCombobox
+                value={field.value}
+                onChange={field.onChange}
+                suggestions={pastExercises}
+                error={workoutForm.formState.errors.exercise_name}
+                accentColor={accentColor}
+              />
+            )}
           />
 
           {/* Muscle group dropdown */}

@@ -85,13 +85,13 @@ const Select = React.forwardRef(({
       {label && (
         <label
           htmlFor={id}
-          className="block text-[10px] font-bold tracking-[0.15em] text-outline-variant uppercase ml-1"
+          className="block text-[10px] font-extrabold tracking-[0.15em] text-outline-variant uppercase ml-1 font-mono"
         >
           {label}
         </label>
       )}
 
-      <div className="relative">
+      <div className="relative font-sans">
         <div
           id={id}
           ref={ref}

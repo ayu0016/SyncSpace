@@ -6,6 +6,7 @@ import DSAQuickAddForm from './forms/DSAQuickAddForm'
 import GymQuickAddForm from './forms/GymQuickAddForm'
 import MLQuickAddForm from './forms/MLQuickAddForm'
 import KanbanQuickAddForm from './forms/KanbanQuickAddForm'
+import CustomQuickAddForm from './forms/CustomQuickAddForm'
 
 const MODAL_CONFIG = {
   dsa: {
@@ -34,30 +35,50 @@ const QuickAddModal = () => {
   const dispatch = useDispatch()
   const modalType = useSelector(state => state.ui.modalType)
   const activeWidgetId = useSelector(state => state.ui.activeWidgetId)
+  const editingEntryId = useSelector(state => state.ui.editingEntryId)
+  const widgets = useSelector(state => state.widgets.widgets)
 
-  const [isRendered, setIsRendered] = useState(false)
-  const [isVisible, setIsVisible] = useState(false)
+  const activeWidget = widgets?.find(w => w.id === activeWidgetId)
 
   const isOpen = !!modalType
-  const config = MODAL_CONFIG[modalType] || {}
-  /*
-    for custom{
-        title widget.name
-        icon=widgt.icon
-        accent=widget.color
+
+  const [prevIsOpen, setPrevIsOpen] = useState(isOpen)
+  const [isRendered, setIsRendered] = useState(isOpen)
+  const [isVisible, setIsVisible] = useState(false)
+
+  if (isOpen !== prevIsOpen) {
+    setPrevIsOpen(isOpen)
+    if (isOpen) {
+      setIsRendered(true)
+    } else {
+      setIsVisible(false)
     }
-  */ 
+  }
+
+  const config = modalType === 'custom'
+    ? {
+        title: editingEntryId
+          ? (activeWidget ? `Edit ${activeWidget.name}` : 'Edit Entry')
+          : (activeWidget ? `Log ${activeWidget.name}` : 'Log Entry'),
+        icon: null,
+        accent: activeWidget?.color || '#4a9eed',
+      }
+    : (MODAL_CONFIG[modalType] || {})
+
   const IconComponent = config.icon
 
   useEffect(() => {
     if (isOpen) {
-      setIsRendered(true)
       document.body.style.overflow = 'hidden'
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => setIsVisible(true))
+      let innerRaf
+      const outerRaf = requestAnimationFrame(() => {
+        innerRaf = requestAnimationFrame(() => setIsVisible(true))
       })
+      return () => {
+        cancelAnimationFrame(outerRaf)
+        if (innerRaf) cancelAnimationFrame(innerRaf)
+      }
     } else {
-      setIsVisible(false)
       document.body.style.overflow = 'unset'
       const timer = setTimeout(() => setIsRendered(false), 400)
       return () => clearTimeout(timer)
@@ -135,17 +156,20 @@ const QuickAddModal = () => {
         <div className="flex items-center justify-between px-7 py-5 border-b border-white/[0.07] shrink-0 bg-white/2">
           <div className="flex items-center gap-3">
             <div
-              className="w-9 h-9 rounded-full flex items-center justify-center border border-white/6"
+              className="w-9 h-9 rounded-full flex items-center justify-center border border-white/6 text-[18px]"
               style={{ backgroundColor: `${config.accent}1A` }}
             >
-              {IconComponent && <IconComponent size={18} color={config.accent} />}
+              {modalType === 'custom' && activeWidget?.icon ? (
+                <span>{activeWidget.icon}</span>
+              ) : IconComponent ? (
+                <IconComponent size={18} color={config.accent} />
+              ) : null}
             </div>
             <h2 className="text-[18px] font-bold text-white tracking-tight">
               {config.title}
             </h2>
           </div>
 
-          
           <button
             onClick={handleClose}
             className="w-8 h-8 rounded-full flex items-center justify-center text-white/40 hover:text-white hover:bg-white/8 active:scale-95 transition-all duration-200"
@@ -158,16 +182,19 @@ const QuickAddModal = () => {
         <div className="flex-1 overflow-y-auto px-7 py-6 modal-scroll pb-10 sm:pb-6">
           <div className={`modal-form-fields flex flex-col gap-4 ${isVisible ? 'show' : ''}`}>
             {modalType === 'dsa' && (
-              <DSAQuickAddForm widgetId={activeWidgetId}   accentColor={config.accent} />
+              <DSAQuickAddForm widgetId={activeWidgetId} />
             )}
             {modalType === 'gym' && (
-              <GymQuickAddForm widgetId={activeWidgetId}   accentColor={config.accent} />
+              <GymQuickAddForm widgetId={activeWidgetId} accentColor={config.accent} />
             )}
             {modalType === 'ml' && (
-              <MLQuickAddForm widgetId={activeWidgetId}   accentColor={config.accent} />
+              <MLQuickAddForm widgetId={activeWidgetId} accentColor={config.accent} />
             )}
             {modalType === 'kanban' && (
-              <KanbanQuickAddForm widgetId={activeWidgetId}   accentColor={config.accent} />
+              <KanbanQuickAddForm widgetId={activeWidgetId} />
+            )}
+            {modalType === 'custom' && (
+              <CustomQuickAddForm widgetId={activeWidgetId} accentColor={config.accent} />
             )}
           </div>
         </div>

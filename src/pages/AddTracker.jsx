@@ -8,7 +8,14 @@ import ModalHeader from '../components/AddTracker/Modalheader'
 import TabBar from '../components/AddTracker/TabBar'
 import BuiltInTab from '../components/AddTracker/BuiltInTab'
 import CustomTab from '../components/AddTracker/CustomTab'
+import { validateFields } from '../utils/customWidgetValidation'
 import ModalFooter from '../components/AddTracker/ModalFooter'
+
+const DEFAULT_CUSTOM_FIELDS = [
+  { label: '', type: 'text', options: [], unit: '' },
+  { label: '', type: 'text', options: [], unit: '' },
+  { label: '', type: 'text', options: [], unit: '' },
+]
 
 export default function AddTracker() {
   const dispatch = useDispatch()
@@ -26,20 +33,31 @@ export default function AddTracker() {
   const [customName, setCustomName] = useState('')
   const [customIcon, setCustomIcon] = useState('🔥')
   const [customColor, setCustomColor] = useState('#4a9eed')
+  const [customFields, setCustomFields] = useState(DEFAULT_CUSTOM_FIELDS)
+  const [fieldsTouched, setFieldsTouched] = useState([false, false, false])
 
   // Error state
   const [error, setError] = useState(null)
   const [isLoading, setIsLoading] = useState(false)
 
+  const isCustomValid =
+    customName.trim().length >= 1 &&
+    customName.trim().length <= 24 &&
+    !!customIcon &&
+    !!customColor &&
+    validateFields(customFields)
+
   const isConfirmEnabled =
     (activeTab === 'built-in' && selectedCard !== null) ||
-    (activeTab === 'custom' && customName.trim() !== '')//custom wala chod sambhal lena bhai
+    (activeTab === 'custom' && isCustomValid)
 
   const handleTabSwitch = (tab) => {
     if (tab === activeTab) return
     setActiveTab(tab)
     setSelectedCard(null)
     setCustomName('')
+    setCustomFields(DEFAULT_CUSTOM_FIELDS.map(f => ({ ...f })))
+    setFieldsTouched([false, false, false])
     setError(null)
   }
 
@@ -47,9 +65,14 @@ export default function AddTracker() {
     setSelectedCard(prev => prev === id ? null : id)
   }
 
-  // YOU WRITE THIS — call widgetService and dispatch to Redux
+  // Handle widget creation
   const handleConfirm = async () => {
     if (!isConfirmEnabled) return
+    if (!user?.id) {
+      setError('User is not authenticated')
+      return
+    }
+
     setIsLoading(true)
     setError(null)
     try {
@@ -64,9 +87,26 @@ export default function AddTracker() {
           icon: null,
           color: tracker.color,
           position: widgets.length + 1,
-          config:null
+          config: null,
         }
       } else {
+        // Assign permanent keys f1, f2, f3 based on index
+        const fields = customFields.map((f, idx) => {
+          const fieldObj = {
+            key: `f${idx + 1}`,
+            label: f.label.trim(),
+            type: f.type,
+          }
+          if (f.type === 'choice') {
+            fieldObj.options = f.options.map(o => o.trim())
+          }
+          if (f.type === 'number' && f.unit?.trim()) {
+            fieldObj.unit = f.unit.trim()
+          }
+          return fieldObj
+        })
+
+        // YOUR LOGIC:
         payload = {
           userId: user.id,
           type: 'custom',
@@ -74,7 +114,7 @@ export default function AddTracker() {
           icon: customIcon,
           color: customColor,
           position: widgets.length + 1,
-          config:null
+          config: { fields },
         }
       }
 
@@ -89,7 +129,7 @@ export default function AddTracker() {
   }
 
   return (
-    <div className="mesh-bg min-h-screen flex items-center justify-center p-4 relative">
+    <div className="mesh-bg min-h-screen flex items-center justify-center p-4 relative font-sans">
 
       {/* Corner decorations */}
       <div className="fixed top-0 right-0 p-8 pointer-events-none opacity-20 hidden md:block">
@@ -100,7 +140,7 @@ export default function AddTracker() {
       </div>
 
       {/* Modal card */}
-      <div className="w-full max-w-125 glass-card rounded-xl shadow-2xl flex flex-col relative overflow-hidden animate-modal-enter">
+      <div className="w-full max-w-125 glass-card rounded-xl shadow-2xl flex flex-col relative overflow-hidden animate-modal-enter max-h-[90vh]">
 
         {/* Inner corner accents */}
         <div className="absolute top-0 right-0 w-16 h-16 border-t border-r border-primary-container/20 rounded-tr-xl pointer-events-none"></div>
@@ -113,8 +153,8 @@ export default function AddTracker() {
           onTabSwitch={handleTabSwitch}
         />
 
-        {/* Content area */}
-        <div className="relative flex-1 min-h-80 overflow-hidden">
+        {/* Content area: scrollable body with fixed header and footer */}
+        <div className="relative flex-1 min-h-80 overflow-y-auto">
           {activeTab === 'built-in' && (
             <BuiltInTab
               selectedCard={selectedCard}
@@ -129,6 +169,10 @@ export default function AddTracker() {
               setCustomIcon={setCustomIcon}
               customColor={customColor}
               setCustomColor={setCustomColor}
+              customFields={customFields}
+              setCustomFields={setCustomFields}
+              fieldsTouched={fieldsTouched}
+              setFieldsTouched={setFieldsTouched}
             />
           )}
         </div>

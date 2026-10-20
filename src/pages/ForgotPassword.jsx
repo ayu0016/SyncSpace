@@ -58,7 +58,6 @@ export default function ForgotPassword() {
                   </span>
                 </div>
                 <h2
-                  style={{ fontFamily: "Playfair Display, serif" }}
                   className="text-2xl font-bold text-white"
                 >
                   Check your email
@@ -79,7 +78,6 @@ export default function ForgotPassword() {
               {/* Heading */}
               <div className="w-full space-y-2 mb-8 text-center">
                 <h2
-                  style={{ fontFamily: "Playfair Display, serif" }}
                   className="text-[26px] font-bold text-white tracking-tight"
                 >
                   Reset your password

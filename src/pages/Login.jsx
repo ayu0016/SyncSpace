@@ -5,7 +5,7 @@ import { Link, useNavigate } from "react-router-dom"
 import { useForm } from "react-hook-form"
 import { authService } from "../supabase/auth"
 import { useState , useEffect} from "react"
-import { useDispatch , useSelector } from "react-redux"
+import { useSelector } from "react-redux"
 
 export default function Login() {
 
@@ -13,23 +13,22 @@ export default function Login() {
   const [showPassword, setShowPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const navigate = useNavigate()
-  const dispatch=useDispatch()
-  const User = useSelector((state) => state.auth.userData)  
+  const user = useSelector((state) => state.auth.userData)
 
   const { register, handleSubmit, formState: { errors } } = useForm()
 
   useEffect(() => {
-    if (User) {
+    if (user) {
       navigate('/dashboard')
     }
-  }, [User, navigate])
+  }, [user, navigate])
 
 
   const onSubmit = async (data) => {
     setIsLoading(true)
     setAuthError(null)
     try {
-      const user =await authService.login(data)
+      await authService.login(data)
     } catch (error) {
       setAuthError(error.message)
     } finally {
@@ -70,7 +69,6 @@ export default function Login() {
           {/* Heading */}
           <div className="w-full space-y-2 mb-8 text-center">
             <h2
-              style={{ fontFamily: "Playfair Display, serif" }}
               className="text-[26px] font-bold text-white tracking-tight"
             >
               Welcome back

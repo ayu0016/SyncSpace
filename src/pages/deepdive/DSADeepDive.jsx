@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { openModal, setActiveWidget } from '../../store/uiSlice'
 
@@ -7,7 +7,7 @@ import useWidgetEntries from '../../hooks/useWidgetEntries'
 import useDeepDiveFilter from '../../hooks/useDeepDiveFilter'
 
 // Utils
-import { calcStreak, calcBestStreak, calcThisWeek } from '../../utils/streakUtils'
+import { calcStreak, calcBestStreak } from '../../utils/streakUtils'
 import { entriesToHeatmapData } from '../../utils/heatmapUtils'
 import { formatRelativeDate, getDaysAgo } from '../../utils/dateUtils'
 
@@ -110,24 +110,24 @@ const ProblemMeta = ({ platform, topic, time }) => (
     <span
       className="font-mono text-[10px] rounded-[4px] px-[7px] py-[2px] leading-none"
       style={{
-        color: 'rgba(74,158,237,0.7)',
-        background: 'rgba(74,158,237,0.08)'
+        color: 'rgba(74,158,237,0.85)',
+        background: 'rgba(74,158,237,0.12)'
       }}
     >
       {platform}
     </span>
     <span
-      className="font-mono text-[9px]"
-      style={{ color: '#2d3748' }}
+      className="font-mono text-[9px] text-slate-400"
     >
       {topic}
     </span>
-    <span
-      className="font-mono text-[9px]"
-      style={{ color: '#1a2030' }}
-    >
-      {time}
-    </span>
+    {time && (
+      <span
+        className="font-mono text-[9px] text-slate-500"
+      >
+        {time}
+      </span>
+    )}
   </div>
 )
 
@@ -463,8 +463,21 @@ const TopicBreakdown = ({ entries }) => {
 // ─── MAIN PAGE ────────────────────────────────────────────────────────────────
 
 const DSADeepDive = () => {
-  const widgetId= useSelector(state => state.ui.activeWidgetId)
-  const dispatch     = useDispatch()
+  const activeWidgetId = useSelector(state => state.ui.activeWidgetId)
+  const widgets = useSelector(state => state.widgets.widgets)
+  const dispatch = useDispatch()
+
+  const widget = useMemo(() => {
+    if (activeWidgetId) return widgets.find(w => w.id === activeWidgetId) || null
+    return widgets.find(w => w.type === 'dsa') || null
+  }, [activeWidgetId, widgets])
+  const widgetId = widget?.id || activeWidgetId
+
+  useEffect(() => {
+    if (widgetId && !activeWidgetId) {
+      dispatch(setActiveWidget(widgetId))
+    }
+  }, [widgetId, activeWidgetId, dispatch])
 
   const { entries, loading }   = useWidgetEntries(widgetId)
   const {
@@ -475,12 +488,24 @@ const DSADeepDive = () => {
     setTopicFilter,
   } = useDeepDiveFilter(entries)
 
+  const [markerFilter, setMarkerFilter] = useState('all') // 'all' | 'bookmarked' | 'flagged'
+
+  const bookmarkedCount = useMemo(() => entries.filter(e => e.payload?.is_bookmarked).length, [entries])
+  const flaggedCount = useMemo(() => entries.filter(e => e.payload?.is_flagged).length, [entries])
+
+  const finalFilteredEntries = useMemo(() => {
+    return filteredEntries.filter(e => {
+      if (markerFilter === 'bookmarked') return e.payload?.is_bookmarked
+      if (markerFilter === 'flagged') return e.payload?.is_flagged
+      return true
+    })
+  }, [filteredEntries, markerFilter])
+
   // Fixed: use entries.length directly
   const totalSolved = useMemo(() => entries.length, [entries])
 
   const currentStreak = useMemo(() => calcStreak(entries),     [entries])
   const bestStreak    = useMemo(() => calcBestStreak(entries), [entries])
-  const thisWeek      = useMemo(() => calcThisWeek(entries),   [entries])
 
   const topPlatform = useMemo(() => {
     const map = {}
@@ -540,12 +565,14 @@ const DSADeepDive = () => {
       }))
   }, [entries])
 
+  const cap = (s) => (s ? s.charAt(0).toUpperCase() + s.slice(1) : '-')
+
   const stats = [
     { value: totalSolved.toString(), label: 'TOTAL SOLVED',   color: ACCENT     },
     { value: `${currentStreak}d`,   label: 'CURRENT STREAK', color: '#f59e0b'  },
     { value: `${bestStreak}d`,      label: 'BEST STREAK',    color: '#f59e0b'  },
-    { value: topPlatform,           label: 'TOP PLATFORM',   color: '#22c55e'  },
-    { value: topTopic,              label: 'TOP TOPIC',      color: '#22c55e'  },
+    { value: cap(topPlatform),      label: 'TOP PLATFORM',   color: '#22c55e'  },
+    { value: cap(topTopic),         label: 'TOP TOPIC',      color: '#22c55e'  },
   ]
 
   const handleCta = () => {
@@ -679,14 +706,52 @@ const DSADeepDive = () => {
           {/* Recent Log */}
           <RecentLog
             label="RECENT LOG"
-            rows={filteredEntries}
+            rows={finalFilteredEntries}
             accentColor={ACCENT}
             dateFilter={dateFilter}
             onDateChange={setDateFilter}
             emptyMessage="No problems found for this filter."
-            recordCount={filteredEntries.length}
+            recordCount={finalFilteredEntries.length}
+            headerExtra={
+              <div className="flex items-center gap-1.5 flex-wrap">
+                {topicFilter && (
+                  <button
+                    onClick={() => setTopicFilter(null)}
+                    className="font-mono text-[10px] px-2 py-0.5 rounded-full border border-blue-500/30 text-blue-400 bg-blue-500/10 cursor-pointer flex items-center gap-1"
+                  >
+                    Topic: {topicFilter} ✕
+                  </button>
+                )}
+                {[
+                  { id: 'all', label: 'All', count: entries.length },
+                  { id: 'bookmarked', label: '⭐ Saved', count: bookmarkedCount },
+                  { id: 'flagged', label: '🚩 Flagged', count: flaggedCount },
+                ].map(tab => {
+                  const isActive = markerFilter === tab.id
+                  return (
+                    <button
+                      key={tab.id}
+                      onClick={() => setMarkerFilter(tab.id)}
+                      className="font-mono text-[10px] px-2.5 py-1 rounded-[6px] transition-all cursor-pointer"
+                      style={{
+                        background: isActive ? `${ACCENT}22` : 'rgba(255,255,255,0.03)',
+                        border: `1px solid ${isActive ? `${ACCENT}66` : 'rgba(255,255,255,0.06)'}`,
+                        color: isActive ? '#fff' : 'rgba(255,255,255,0.45)',
+                      }}
+                    >
+                      {tab.label} {tab.count > 0 && <span className="opacity-60 text-[9px]">({tab.count})</span>}
+                    </button>
+                  )
+                })}
+              </div>
+            }
             renderLeft={(row) => (
-              <DifficultyBadge difficulty={row.payload?.difficulty} />
+              <div className="flex flex-col items-start gap-1">
+                <span className="font-mono text-[10px] text-slate-400 shrink-0">
+                  {formatRelativeDate(row.date)}
+                </span>
+                <DifficultyBadge difficulty={row.payload?.difficulty} />
+              </div>
             )}
             renderMiddle={(row) => (
               <ProblemName
@@ -699,7 +764,7 @@ const DSADeepDive = () => {
               <ProblemMeta
                 platform={row.payload?.platform || '—'}
                 topic={row.payload?.topic || '—'}
-                time={formatRelativeDate(row.date)}
+                time=""
               />
             )}
           />

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { useDispatch, useSelector } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
@@ -226,7 +226,7 @@ const Profile = () => {
       // 1. Update profiles table in Supabase
       try {
         await profileService.updateProfile(user.id, { username: trimmedName })
-      } catch (_err) {
+      } catch {
         // If row didn't exist yet, try upserting
         try {
           await supabase.from('profiles').upsert({ id: user.id, username: trimmedName })
@@ -339,7 +339,7 @@ const Profile = () => {
   }
 
   return (
-    <div className="min-h-screen bg-[#0a0a0f] text-white flex flex-col font-['Plus_Jakarta_Sans']">
+    <div className="min-h-screen bg-[#0a0a0f] text-white flex flex-col font-sans">
       {/* 1. Header */}
       <div className="sticky top-0 z-30 flex items-center gap-3 px-6 py-4 bg-[#0a0a0f]/90 backdrop-blur-md border-b border-white/[0.06]">
         <button

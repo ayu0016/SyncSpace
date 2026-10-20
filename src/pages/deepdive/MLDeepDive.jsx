@@ -1,5 +1,5 @@
-import { useState, useMemo } from 'react'
-import { useDispatch,useSelector } from 'react-redux'
+import { useMemo, useEffect } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
 import { startOfWeek } from 'date-fns'
 import { openModal, setActiveWidget } from '../../store/uiSlice'
 
@@ -8,7 +8,7 @@ import useWidgetEntries from '../../hooks/useWidgetEntries'
 import useDeepDiveFilter from '../../hooks/useDeepDiveFilter'
 
 // Utils
-import { calcStreak, calcBestStreak } from '../../utils/streakUtils'
+import { calcStreak } from '../../utils/streakUtils'
 import { entriesToHeatmapData } from '../../utils/heatmapUtils'
 import { formatRelativeDate, getDaysAgo } from '../../utils/dateUtils'
 
@@ -388,8 +388,21 @@ const ResourceIcon = ({ type }) => {
 // ─── MAIN PAGE ────────────────────────────────────────────────────────────────
 
 const MLDeepDive = () => {
-  const widgetId= useSelector(state => state.ui.activeWidgetId)
+  const activeWidgetId = useSelector(state => state.ui.activeWidgetId)
+  const widgets = useSelector(state => state.widgets.widgets)
   const dispatch     = useDispatch()
+
+  const widget = useMemo(() => {
+    if (activeWidgetId) return widgets.find(w => w.id === activeWidgetId) || null
+    return widgets.find(w => w.type === 'ml') || null
+  }, [activeWidgetId, widgets])
+  const widgetId = widget?.id || activeWidgetId
+
+  useEffect(() => {
+    if (widgetId && !activeWidgetId) {
+      dispatch(setActiveWidget(widgetId))
+    }
+  }, [widgetId, activeWidgetId, dispatch])
 
   const { entries, loading } = useWidgetEntries(widgetId)
   const {
@@ -410,7 +423,6 @@ const MLDeepDive = () => {
   }, [entries])
 
   const currentStreak = useMemo(() => calcStreak(entries),     [entries])
-  const bestStreak    = useMemo(() => calcBestStreak(entries), [entries])
 
   const topTopic = useMemo(() => {
     const map = {}

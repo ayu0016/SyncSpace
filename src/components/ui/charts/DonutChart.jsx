@@ -9,18 +9,18 @@ const DonutChart = ({ segments = [], centerLabel = 'TOTAL' }) => {
   const total         = segments.reduce((sum, s) => sum + s.count, 0)
 
   // Build arc data
-  let cumulativeArc = 0
-  const arcs = segments.map((segment) => {
+  const arcs = segments.reduce((acc, segment) => {
+    const prevCumulative = acc.length > 0 ? acc[acc.length - 1].nextCumulative : 0
     const arc = total > 0 ? (segment.count / total) * circumference : 0
     
-    // FIX: The gap must be exactly the remaining circumference, not the full circumference.
-    // Otherwise, the offset math pushes subsequent segments into the invisible gap.
+    // The gap must be exactly the remaining circumference, not the full circumference.
     const gap = Math.max(circumference - arc, 0)
-    const offset = circumference - cumulativeArc
+    const offset = circumference - prevCumulative
+    const nextCumulative = prevCumulative + arc
     
-    cumulativeArc += arc
-    return { ...segment, arc, gap, offset }
-  })
+    acc.push({ ...segment, arc, gap, offset, nextCumulative })
+    return acc
+  }, [])
 
   // Center display
   const centerNum   = hoveredIndex !== null ? segments[hoveredIndex].count   : total
@@ -68,7 +68,7 @@ const DonutChart = ({ segments = [], centerLabel = 'TOTAL' }) => {
                 stroke={arc.color}
                 strokeWidth={sw}
                 strokeLinecap="round"
-                // FIX: Apply the properly calculated arc and gap lengths here
+                // Apply the properly calculated arc and gap lengths
                 strokeDasharray={`${arc.arc} ${arc.gap}`}
                 strokeDashoffset={arc.offset}
                 className="cursor-pointer"
@@ -103,8 +103,8 @@ const DonutChart = ({ segments = [], centerLabel = 'TOTAL' }) => {
         </div>
       </div>
 
-      {/* Legend */}
-      <div className="flex items-center justify-center gap-5 mt-8 w-full">
+      {/* Legend with wrapping for >3 items */}
+      <div className="flex flex-wrap items-center justify-center gap-5 mt-8 w-full">
         {segments.map((segment, i) => {
           const isHovered = hoveredIndex === i
           return (

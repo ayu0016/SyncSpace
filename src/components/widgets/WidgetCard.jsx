@@ -18,7 +18,7 @@ export default function WidgetCard({ widget, children, buttonLabel }) {
     const OnCardClick = () => {
         dispatch(setActiveWidget(widget.id))
         if (widget.type === 'custom') {
-            navigate('customDeepDive')
+            navigate(`/widget/custom/${widget.id}`)
         } else if (widget.type) {
             navigate(widget.type)
         }
@@ -40,7 +40,7 @@ export default function WidgetCard({ widget, children, buttonLabel }) {
             p-4 cursor-pointer
             transition-all duration-200
             hover:bg-white/6 hover:border-white/[0.14]
-            font-['Plus_Jakarta_Sans']
+            font-sans
             flex flex-col
         "
         >

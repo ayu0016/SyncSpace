@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useCallback } from "react";
 import { useSelector } from "react-redux";
 import {
   parseISO,
@@ -99,12 +99,11 @@ const AnalyticsEngine = {
 export const useAnalytics = (widget) => {
   
   // 1. Determine the Rules (Hybrid Logic)
-  // Fallbacks ensure it never crashes if config is missing
-  const activeConfig = widget?.type === 'custom' 
-    ? (widget.config || { sums: [], tops: [] }) 
-    : (WIDGET_CONFIG[widget?.type] || { sums: [], tops: [] });
+  const sumsKey = (widget?.type === 'custom' ? widget?.config?.sums : WIDGET_CONFIG[widget?.type]?.sums)?.join(',') || '';
+  const topsKey = (widget?.type === 'custom' ? widget?.config?.tops : WIDGET_CONFIG[widget?.type]?.tops)?.join(',') || '';
 
-  const { sums: fieldsToSum = [], tops: topFields = [] } = activeConfig;
+  const fieldsToSum = useMemo(() => (sumsKey ? sumsKey.split(',') : []), [sumsKey]);
+  const topFields = useMemo(() => (topsKey ? topsKey.split(',') : []), [topsKey]);
 
   // 2. Fetch data from Redux safely
   const entries = useSelector(
@@ -115,30 +114,23 @@ export const useAnalytics = (widget) => {
   const buckets = useMemo(() => AnalyticsEngine.getBuckets(entries), [entries]);
 
   // --- DYNAMIC STAT GENERATOR HELPER ---
-  const generateStatsForBucket = (bucket) => {
+  const generateStatsForBucket = useCallback((bucket) => {
     const stats = { total: bucket.length };
     fieldsToSum.forEach(field => {
       stats[field] = AnalyticsEngine.sum(bucket, field);
     });
     return stats;
-  };
-
-  const stringifiedFields = fieldsToSum.join(',');
+  }, [fieldsToSum]);
 
   // 4. Generate the Period Stats
-  const todayStats = useMemo(() => generateStatsForBucket(buckets.entriesToday), [buckets, stringifiedFields]);
-  const yesterdayStats = useMemo(() => generateStatsForBucket(buckets.entriesYesterday), [buckets, stringifiedFields]);
-  const weekStats = useMemo(() => generateStatsForBucket(buckets.entriesThisWeek), [buckets, stringifiedFields]);
+  const todayStats = useMemo(() => generateStatsForBucket(buckets.entriesToday), [buckets.entriesToday, generateStatsForBucket]);
+  const yesterdayStats = useMemo(() => generateStatsForBucket(buckets.entriesYesterday), [buckets.entriesYesterday, generateStatsForBucket]);
+  const weekStats = useMemo(() => generateStatsForBucket(buckets.entriesThisWeek), [buckets.entriesThisWeek, generateStatsForBucket]);
 
   // 5. Generate Comparisons (+/- vs yesterday)
-  const comparisons = useMemo(() => {
-    const comps = { 
-      totalVsYesterday: AnalyticsEngine.vsYesterday(todayStats.total, yesterdayStats.total) 
-    };
-    return comps;
-  }, [todayStats, yesterdayStats, stringifiedFields]);
-
-  const stringifiedTopFields = topFields.join(',');
+  const comparisons = useMemo(() => ({ 
+    totalVsYesterday: AnalyticsEngine.vsYesterday(todayStats.total, yesterdayStats.total) 
+  }), [todayStats.total, yesterdayStats.total]);
 
   // 6. Generate Insights (Top Values)
   const insights = useMemo(() => {
@@ -149,12 +141,12 @@ export const useAnalytics = (widget) => {
       result[keyName] = AnalyticsEngine.getTop(entries, field);
     });
     return result;
-  }, [entries, stringifiedTopFields]);
+  }, [entries, topFields]);
 
   // 7. Return everything to the UI component
   return {
-    entries ,
-    totalEntries:entries.length,
+    entries,
+    totalEntries: entries.length,
     buckets,
     todayStats,
     yesterdayStats,

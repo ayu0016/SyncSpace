@@ -93,7 +93,6 @@ const handleGoogleSignup = async () => {
           {/* Heading */}
           <div className="w-full mb-8 text-center">
             <h2
-                style={{ fontFamily: "Playfair Display, serif" }}
                 className="text-[26px] font-bold text-gray-200 tracking-tight "
             >
                 Create your account

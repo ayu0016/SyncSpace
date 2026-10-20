@@ -1,10 +1,18 @@
-const SectionLabel = ({ label }) => {
+import React from 'react'
+
+const SectionLabel = ({ label, color }) => {
+  // Use provided color or a clean, modern neutral slate
+  const textColor = color || 'rgba(255, 255, 255, 0.55)'
+  const lineColor = color
+    ? `linear-gradient(to right, ${color}33, transparent)`
+    : 'linear-gradient(to right, rgba(255, 255, 255, 0.08), transparent)'
+
   return (
     <div className="flex items-center w-full mb-3">
       <span
-        className="font-mono text-[9px] uppercase shrink-0 mr-3"
+        className="font-mono text-[10px] font-medium uppercase shrink-0 mr-3"
         style={{
-          color: 'rgba(74, 158, 237, 0.65)',
+          color: textColor,
           letterSpacing: '2px'
         }}
       >
@@ -13,7 +21,7 @@ const SectionLabel = ({ label }) => {
       <div
         className="h-px flex-1"
         style={{
-          background: 'linear-gradient(to right, rgba(74,158,237,0.25), transparent)'
+          background: lineColor
         }}
       />
     </div>

@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { useForm, Controller } from 'react-hook-form'
 import { useDispatch, useSelector } from 'react-redux'
 import { Bookmark, Flag } from 'lucide-react'
@@ -31,7 +31,7 @@ const today = () => {
   return d.toLocaleDateString('en-CA');
 }
 
-const DSAQuickAddForm = ({ widgetId, accentColor }) => {
+const DSAQuickAddForm = ({ widgetId }) => {
   const dispatch = useDispatch()
   
   // FIX 1: Moved inside the component

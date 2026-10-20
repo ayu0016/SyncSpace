@@ -1,5 +1,5 @@
-import { useState, useMemo } from 'react'
-import { useDispatch ,useSelector} from 'react-redux'
+import { useState, useMemo, useEffect } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
 import { format } from 'date-fns'
 import { AlertCircle } from 'lucide-react'
 import { openModal, setActiveWidget } from '../../store/uiSlice'
@@ -16,9 +16,9 @@ import GlassCard from '../../components/ui/GlassCard'
 const ACCENT = '#22c55e'
 
 const COLUMNS = [
-  { id: 'todo',        label: 'TO DO',       accent: '#f59e0b' },
-  { id: 'in_progress', label: 'IN PROGRESS', accent: '#4a9eed' },
-  { id: 'done',        label: 'DONE',        accent: '#22c55e' },
+  { id: 'todo',        label: 'TO DO',       accent: '#94a3b8', badgeBg: 'rgba(148,163,184,0.15)', badgeText: '#e2e8f0' },
+  { id: 'in_progress', label: 'IN PROGRESS', accent: '#f59e0b', badgeBg: 'rgba(245,158,11,0.15)',  badgeText: '#fbbf24' },
+  { id: 'done',        label: 'DONE',        accent: '#22c55e', badgeBg: 'rgba(34,197,94,0.15)',   badgeText: '#4ade80' },
 ]
 
 // ─── HELPERS ─────────────────────────────────────────────────────────────────
@@ -33,8 +33,8 @@ const isOverdue = (dueDateStr) => {
 // Custom SVG bars icon for In Progress insight card
 const ProgressIcon = () => (
   <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-    <rect x="3" y="3" width="4" height="10" rx="1" fill="#4a9eed" />
-    <rect x="9" y="6" width="4" height="7" rx="1" fill="#4a9eed" fillOpacity="0.4" />
+    <rect x="3" y="3" width="4" height="10" rx="1" fill="#f59e0b" />
+    <rect x="9" y="6" width="4" height="7" rx="1" fill="#f59e0b" fillOpacity="0.4" />
   </svg>
 )
 
@@ -113,25 +113,24 @@ const PriorityBadge = ({ priority, isDone }) => {
 }
 
 // Individual task card — draggable
-const TaskCard = ({ entry, onDragStart, onDragEnd }) => {
+const TaskCard = ({ entry }) => {
   const { payload } = entry
   const isDone       = payload.status === 'done'
   const isTaskOverdue = !isDone && isOverdue(payload.due_date)
 
   // Base card style
-  let borderColor = 'rgba(255,255,255,0.06)'
-  let background  = 'rgba(255,255,255,0.025)'
+  let borderColor = 'rgba(255,255,255,0.07)'
+  let background  = 'rgba(255,255,255,0.02)'
   let boxShadow   = 'none'
   let opacity     = 1
 
   if (isDone) {
-    borderColor = 'rgba(34,197,94,0.15)'
+    borderColor = 'rgba(34,197,94,0.18)'
     background  = 'rgba(34,197,94,0.02)'
-    opacity     = 0.75
-  } else if (isTaskOverdue) {
-    borderColor = 'rgba(239,68,68,0.4)'
-    background  = 'rgba(239,68,68,0.03)'
-    boxShadow   = '0 0 0 1px rgba(239,68,68,0.15)'
+    opacity     = 0.7
+  } else if (payload.status === 'in_progress') {
+    borderColor = 'rgba(245,158,11,0.22)'
+    background  = 'rgba(245,158,11,0.02)'
   }
 
   return (
@@ -145,12 +144,10 @@ const TaskCard = ({ entry, onDragStart, onDragEnd }) => {
           e.target.style.opacity = '0.4'
           e.target.style.borderStyle = 'dashed'
         }, 0)
-        onDragStart(entry)
       }}
       onDragEnd={(e) => {
         e.target.style.opacity = ''
         e.target.style.borderStyle = ''
-        onDragEnd()
       }}
       className="rounded-[10px] mb-[8px] transition-all duration-150 cursor-grab active:cursor-grabbing"
       style={{
@@ -267,7 +264,7 @@ const TaskCard = ({ entry, onDragStart, onDragEnd }) => {
 }
 
 // Kanban column — drop zone + task list
-const KanbanColumn = ({ column, tasks, onDrop, onDragStart, onDragEnd }) => {
+const KanbanColumn = ({ column, tasks, onDrop }) => {
   const [isDragOver, setIsDragOver] = useState(false)
 
   // Unique scrollbar class per column
@@ -318,8 +315,8 @@ const KanbanColumn = ({ column, tasks, onDrop, onDragStart, onDragEnd }) => {
           className="font-mono font-semibold"
           style={{
             fontSize:     '11px',
-            background:   `${column.accent}26`,
-            color:        column.accent,
+            background:   column.badgeBg || `${column.accent}26`,
+            color:        column.badgeText || column.accent,
             borderRadius: '20px',
             padding:      '2px 8px',
           }}
@@ -371,8 +368,6 @@ const KanbanColumn = ({ column, tasks, onDrop, onDragStart, onDragEnd }) => {
             <TaskCard
               key={entry.id}
               entry={entry}
-              onDragStart={onDragStart}
-              onDragEnd={onDragEnd}
             />
           ))
         )}
@@ -385,7 +380,7 @@ const KanbanColumn = ({ column, tasks, onDrop, onDragStart, onDragEnd }) => {
 const InsightCard = ({ label, value, accentColor, bgColor, borderColor, Icon }) => (
   <GlassCard
     className="flex items-center gap-[14px] px-5 py-4"
-    style={{ borderColor }}
+    style={{ borderColor: borderColor || 'rgba(255,255,255,0.06)' }}
   >
     <div
       className="shrink-0 flex items-center justify-center rounded-[8px]"
@@ -395,15 +390,14 @@ const InsightCard = ({ label, value, accentColor, bgColor, borderColor, Icon }) 
         background: bgColor,
       }}
     >
-      <Icon />
+      {Icon ? <Icon /> : null}
     </div>
     <div>
       <p
-        className="font-sans uppercase"
+        className="font-mono uppercase text-slate-400"
         style={{
-          fontSize:      '11px',
-          letterSpacing: '0.06em',
-          color:         'rgba(255,255,255,0.4)',
+          fontSize:      '10px',
+          letterSpacing: '0.08em',
           margin:        '0 0 2px 0',
         }}
       >
@@ -412,10 +406,10 @@ const InsightCard = ({ label, value, accentColor, bgColor, borderColor, Icon }) 
       <p
         className="font-mono font-bold leading-none"
         style={{
-          fontSize:   '28px',
+          fontSize:   '26px',
           color:      accentColor,
           margin:     0,
-          textShadow: `0 0 16px ${accentColor}80`,
+          textShadow: `0 0 14px ${accentColor}40`,
         }}
       >
         {value}
@@ -427,12 +421,24 @@ const InsightCard = ({ label, value, accentColor, bgColor, borderColor, Icon }) 
 // ─── MAIN PAGE ────────────────────────────────────────────────────────────────
 
 const KanbanDeepDive = () => {
-  const widgetId= useSelector(state => state.ui.activeWidgetId)
+  const activeWidgetId = useSelector(state => state.ui.activeWidgetId)
+  const widgets = useSelector(state => state.widgets.widgets)
   const dispatch     = useDispatch()
+
+  const widget = useMemo(() => {
+    if (activeWidgetId) return widgets.find(w => w.id === activeWidgetId) || null
+    return widgets.find(w => w.type === 'kanban') || null
+  }, [activeWidgetId, widgets])
+  const widgetId = widget?.id || activeWidgetId
+
+  useEffect(() => {
+    if (widgetId && !activeWidgetId) {
+      dispatch(setActiveWidget(widgetId))
+    }
+  }, [widgetId, activeWidgetId, dispatch])
 
   const { entries, loading } = useWidgetEntries(widgetId)
   const [filter, setFilter]  = useState('All')
-  const [draggingEntry, setDraggingEntry] = useState(null)
 
   // ── Filtering ──
   const filteredEntries = useMemo(() => {
@@ -493,7 +499,7 @@ const KanbanDeepDive = () => {
     // Persist to Supabase
     try {
       await entryService.updateEntry(entry.id, newPayload)
-    } catch (err) {
+    } catch {
       // Revert on failure
       dispatch(updateEntry({
         widget_id: widgetId,
@@ -638,22 +644,16 @@ const KanbanDeepDive = () => {
                 column={COLUMNS[0]}
                 tasks={todoEntries}
                 onDrop={handleDrop}
-                onDragStart={setDraggingEntry}
-                onDragEnd={() => setDraggingEntry(null)}
               />
               <KanbanColumn
                 column={COLUMNS[1]}
                 tasks={inProgressEntries}
                 onDrop={handleDrop}
-                onDragStart={setDraggingEntry}
-                onDragEnd={() => setDraggingEntry(null)}
               />
               <KanbanColumn
                 column={COLUMNS[2]}
                 tasks={doneEntries}
                 onDrop={handleDrop}
-                onDragStart={setDraggingEntry}
-                onDragEnd={() => setDraggingEntry(null)}
               />
             </div>
           )}
@@ -668,7 +668,7 @@ const KanbanDeepDive = () => {
                 label="Overdue"
                 value={overdueTasks}
                 accentColor="#ef4444"
-                bgColor="rgba(239,68,68,0.1)"
+                bgColor="rgba(239,68,68,0.12)"
                 borderColor="rgba(239,68,68,0.2)"
                 Icon={() => <AlertCircle size={16} color="#ef4444" />}
               />
@@ -677,70 +677,21 @@ const KanbanDeepDive = () => {
               <InsightCard
                 label="In Progress"
                 value={inProgressTasks}
-                accentColor="#4a9eed"
-                bgColor="rgba(74,158,237,0.1)"
-                borderColor="rgba(74,158,237,0.2)"
+                accentColor="#f59e0b"
+                bgColor="rgba(245,158,11,0.12)"
+                borderColor="rgba(245,158,11,0.2)"
                 Icon={ProgressIcon}
               />
 
               {/* Completion Rate */}
-              <GlassCard
-                className="flex items-center gap-[14px] relative overflow-hidden px-5 py-4 border-emerald-500/20"
-              >
-                {/* Background flare */}
-                <div
-                  className="pointer-events-none absolute"
-                  style={{
-                    top:          '-50%',
-                    right:        '-10%',
-                    width:        '100px',
-                    height:       '100px',
-                    background:   '#22c55e',
-                    borderRadius: '50%',
-                    filter:       'blur(50px)',
-                    opacity:      0.08,
-                  }}
-                />
-
-                {/* Icon */}
-                <div
-                  className="shrink-0 flex items-center justify-center rounded-[8px]"
-                  style={{
-                    width:     '36px',
-                    height:    '36px',
-                    background: 'rgba(34,197,94,0.1)',
-                    boxShadow:  '0 0 10px rgba(34,197,94,0.2)',
-                  }}
-                >
-                  <CompletionRingIcon percentage={completionRate} />
-                </div>
-
-                {/* Text */}
-                <div className="relative z-10">
-                  <p
-                    className="font-sans uppercase"
-                    style={{
-                      fontSize:      '11px',
-                      letterSpacing: '0.06em',
-                      color:         'rgba(34,197,94,0.8)',
-                      margin:        '0 0 2px 0',
-                    }}
-                  >
-                    Completion
-                  </p>
-                  <p
-                    className="font-mono font-semibold leading-none"
-                    style={{
-                      fontSize:   '28px',
-                      color:      '#4ade80',
-                      margin:     0,
-                      filter:     'drop-shadow(0 0 8px rgba(34,197,94,0.4))',
-                    }}
-                  >
-                    {completionRate}%
-                  </p>
-                </div>
-              </GlassCard>
+              <InsightCard
+                label="Completion"
+                value={`${completionRate}%`}
+                accentColor="#22c55e"
+                bgColor="rgba(34,197,94,0.12)"
+                borderColor="rgba(34,197,94,0.2)"
+                Icon={() => <CompletionRingIcon percentage={completionRate} />}
+              />
 
             </div>
           </div>

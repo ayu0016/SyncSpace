@@ -7,11 +7,10 @@ import { useAnalytics } from '../widgetUtils'
 
 export default function DSACardContent({ widget, accent }) {
 
-  const { buckets,totalEntries, todayStats, yesterdayStats, weekStats,comparisons, insights } = useAnalytics(widget)
+  const { buckets, totalEntries, todayStats, weekStats, comparisons, insights } = useAnalytics(widget)
 
   // TODO: one entry = one problem solved
   const solvedToday     = todayStats.total
-  const solvedYesterday = yesterdayStats.total
   const vsYesterday     = comparisons.totalVsYesterday
   const totalSolved     = totalEntries
   const thisWeek        = weekStats.total
@@ -22,8 +21,8 @@ export default function DSACardContent({ widget, accent }) {
   const lastProblemTitle = lastEntry?.payload?.problem_title ?? '—'
   const lastDifficulty   = lastEntry?.payload?.difficulty    ?? '—'
 
-  // TODO: top topic from insights — powered by getTop in analytics engine
-  const topTopic = insights.topic ?? '—'
+  // top topic from insights — powered by getTop in analytics engine
+  const topTopic = insights.topTopic ?? insights.topic ?? '—'
 
   // difficulty badge color — easy → green, medium → amber, hard → red
   const difficultyColor = {

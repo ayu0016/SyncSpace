@@ -96,8 +96,9 @@ const RingProgress = ({ percent, color, label, centerValue, subValue }) => {
   )
 }
 
-// Fixed: added useEffect to sync form when config loads from Supabase
+// Sync form when config loads from Supabase
 const GoalsPanel = ({ show, onClose, config, onSave }) => {
+  const [prevConfig, setPrevConfig] = useState(config)
   const [form, setForm] = useState({
     calorie_target:      config.calorie_target,
     protein_target:      config.protein_target,
@@ -105,14 +106,15 @@ const GoalsPanel = ({ show, onClose, config, onSave }) => {
     weekly_workout_goal: config.weekly_workout_goal,
   })
 
-  useEffect(() => {
+  if (config !== prevConfig) {
+    setPrevConfig(config)
     setForm({
       calorie_target:      config.calorie_target,
       protein_target:      config.protein_target,
       water_target:        config.water_target,
       weekly_workout_goal: config.weekly_workout_goal,
     })
-  }, [config])
+  }
 
   const handleSave = () => {
     onSave(form)
@@ -292,10 +294,23 @@ const ProteinConsistency = ({ dietEntries, proteinTarget }) => {
 // ─── MAIN PAGE ────────────────────────────────────────────────────────────────
 
 const GymDeepDive = () => {
-  const widgetId= useSelector(state => state.ui.activeWidgetId)
+  const activeWidgetId = useSelector(state => state.ui.activeWidgetId)
+  const widgets = useSelector(state => state.widgets.widgets)
   const dispatch                  = useDispatch()
   const [activeTab, setActiveTab] = useState('Workout')
   const [showGoals, setShowGoals] = useState(false)
+
+  const widget = useMemo(() => {
+    if (activeWidgetId) return widgets.find(w => w.id === activeWidgetId) || null
+    return widgets.find(w => w.type === 'gym') || null
+  }, [activeWidgetId, widgets])
+  const widgetId = widget?.id || activeWidgetId
+
+  useEffect(() => {
+    if (widgetId && !activeWidgetId) {
+      dispatch(setActiveWidget(widgetId))
+    }
+  }, [widgetId, activeWidgetId, dispatch])
 
   const { entries, loading }       = useWidgetEntries(widgetId)
   const { config, updateConfig }   = useWidgetConfig(widgetId)
@@ -382,7 +397,7 @@ const GymDeepDive = () => {
       .slice(0, 6)
   }, [workoutEntries])
 
-  const [selectedExercise, setSelectedExercise] = useState('')
+  const [userSelectedExercise, setUserSelectedExercise] = useState('')
 
   const exerciseList = useMemo(() => {
     const names = new Set(
@@ -391,12 +406,9 @@ const GymDeepDive = () => {
     return [...names]
   }, [workoutEntries])
 
-  // Fixed: use useEffect instead of useMemo for side effect
-  useEffect(() => {
-    if (exerciseList.length > 0 && !selectedExercise) {
-      setSelectedExercise(exerciseList[0])
-    }
-  }, [exerciseList])
+  const selectedExercise = (userSelectedExercise && exerciseList.includes(userSelectedExercise))
+    ? userSelectedExercise
+    : (exerciseList[0] || '')
 
 const strengthData = useMemo(() => {
   if (!selectedExercise) return []
@@ -831,7 +843,7 @@ const strengthData = useMemo(() => {
                   <div className="flex justify-between items-center mb-5">
                     <select
                       value={selectedExercise}
-                      onChange={e => setSelectedExercise(e.target.value)}
+                      onChange={e => setUserSelectedExercise(e.target.value)}
                       className="rounded-[8px] px-3 py-1.5 font-sans text-[13px] text-white outline-none cursor-pointer appearance-none transition-colors duration-200"
                       style={{
                         background: 'rgba(255,255,255,0.03)',

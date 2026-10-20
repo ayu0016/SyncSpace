@@ -54,7 +54,6 @@ export default function ResetPassword() {
           {/* Heading */}
           <div className="w-full space-y-2 mb-8 text-center">
             <h2
-              style={{ fontFamily: "Playfair Display, serif" }}
               className="text-[26px] font-bold text-white tracking-tight"
             >
               New password

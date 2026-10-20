@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom'
 import { ChevronLeft } from 'lucide-react'
-import {useDispatch} from 'react-redux'
+import { useDispatch } from 'react-redux'
 import { setActiveWidget } from '../../../store/uiSlice'
 
 // title        → string e.g. "Gym", "DSA Learning", "ML Learning"
@@ -40,9 +40,8 @@ const DeepDiveHeader = ({
           {/* Back button */}
           <button
             onClick={() => {
-                navigate('/dashboard')
-                dispatch(setActiveWidget(null))
-                
+              navigate('/dashboard')
+              dispatch(setActiveWidget(null))
             }}
             className="flex items-center justify-center transition-colors duration-200 cursor-pointer"
             style={{ color: 'rgba(255,255,255,0.35)' }}
@@ -92,7 +91,7 @@ const DeepDiveHeader = ({
           {/* CTA Button */}
           <button
             onClick={onCta}
-            className="font-sans font-bold text-[13px] px-4 py-1.5 rounded-full transition-all duration-200 shrink-0"
+            className="font-sans font-bold text-[13px] px-4 py-1.5 rounded-full transition-all duration-200 shrink-0 cursor-pointer"
             style={{
               backgroundColor: accentColor,
               color: '#0a0a0f',

@@ -6,7 +6,7 @@ import DSACardContent from './widgets/dsa/DsaCardContent'
 import GymCardContent from './widgets/gym/GymCardContent'
 import MLCardContent from './widgets/ml/MlCardContent'
 import KanbanCardContent from './widgets/kanban/KanbanCardContent'
-import customCardContent from './widgets/custom/CustomCardContent'
+import CustomCardContent from './widgets/custom/CustomCardContent'
 import Button from './Button'
 
 const WIDGET_MAP = {
@@ -14,12 +14,13 @@ const WIDGET_MAP = {
   gym:    { Component: GymCardContent,    buttonLabel: '+ Log Workout'  },
   ml:     { Component: MLCardContent,     buttonLabel: '+ Log Session'  },
   kanban: { Component: KanbanCardContent, buttonLabel: '+ Add Task'     },
-  custom: { Component: customCardContent, buttonLabel: '+ Log Entry'    },
+  custom: { Component: CustomCardContent, buttonLabel: '+ Log'          },
 }
 
 function AllWidget() {
   const navigate = useNavigate()
   const widgets = useSelector(state => state.widgets.widgets)
+  const isDesktopTodoOpen = useSelector(state => state.ui.isDesktopTodoOpen ?? true)
 
   if (!widgets || widgets.length === 0) {
     return (
@@ -42,7 +43,13 @@ function AllWidget() {
   }
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+    <div
+      className={`grid grid-cols-1 gap-4 transition-all duration-300 ${
+        isDesktopTodoOpen
+          ? 'sm:grid-cols-2'
+          : 'sm:grid-cols-2 lg:grid-cols-3'
+      }`}
+    >
       {widgets.map(widget => {
         const config = WIDGET_MAP[widget.type] || WIDGET_MAP.custom
         const { Component } = config

@@ -1,3 +1,4 @@
+import { useId } from 'react'
 import {
   XAxis,
   YAxis,
@@ -93,14 +94,14 @@ const LineChart = ({
   height = 200,
   showReps = false,
 }) => {
-  const hex = accentColor.replace('#', '')
-  const r   = parseInt(hex.substring(0, 2), 16)
-  const g   = parseInt(hex.substring(2, 4), 16)
-  const b   = parseInt(hex.substring(4, 6), 16)
+  const reactId = useId()
+  const hex = (accentColor || '#4a9eed').replace('#', '')
+  const r   = parseInt(hex.substring(0, 2), 16) || 74
+  const g   = parseInt(hex.substring(2, 4), 16) || 158
+  const b   = parseInt(hex.substring(4, 6), 16) || 237
 
-  // Unique gradient id per accent color — prevents conflicts
-  // when multiple LineChart components exist on the same page
-  const gradientId = `lineGradient-${hex}`
+  // Unique gradient id per chart instance using React useId
+  const gradientId = `lineGradient-${reactId.replace(/:/g, '')}-${hex}`
 
   return (
     <ResponsiveContainer width="100%" height={height}>

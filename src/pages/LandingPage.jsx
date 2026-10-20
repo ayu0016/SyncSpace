@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { 
@@ -35,7 +35,7 @@ export default function LandingPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0a0a0f] text-white font-['Plus_Jakarta_Sans',sans-serif] selection:bg-[#4a9eed] selection:text-white overflow-x-hidden relative">
+    <div className="min-h-screen bg-[#0a0a0f] text-white font-sans selection:bg-[#4a9eed] selection:text-white overflow-x-hidden relative">
       
       {/* ========================================================
         1. HERO SECTION 

@@ -1,11 +1,11 @@
-import { format, subDays, parseISO } from 'date-fns'
+import { format, subDays } from 'date-fns'
 
-// Maps count to intensity level 0-4
+// Maps count to intensity level 0-4 with improved gradations
 export const getIntensityLevel = (count) => {
-  if (count === 0) return 0
+  if (!count || count === 0) return 0
   if (count === 1) return 1
-  if (count === 2) return 2
-  if (count === 3) return 3
+  if (count <= 3) return 2
+  if (count <= 6) return 3
   return 4
 }
 
@@ -16,7 +16,9 @@ export const entriesToHeatmapData = (entries = []) => {
   const countByDate = {}
   entries.forEach(entry => {
     const dateStr = entry.date
-    countByDate[dateStr] = (countByDate[dateStr] || 0) + 1
+    if (dateStr) {
+      countByDate[dateStr] = (countByDate[dateStr] || 0) + 1
+    }
   })
 
   // Build 365 day array ending today

@@ -1,4 +1,4 @@
-import { parseISO, isToday, isYesterday, subDays, format, startOfWeek, endOfWeek, isWithinInterval,differenceInDays } from 'date-fns'
+import { parseISO, subDays, format, startOfWeek, endOfWeek, isWithinInterval, differenceInDays } from 'date-fns'
 
 // Get unique dates from entries array as Set of "YYYY-MM-DD" strings
 const getUniqueDates = (entries) => {

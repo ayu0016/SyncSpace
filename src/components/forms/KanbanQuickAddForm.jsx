@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react'
+import { useState, useRef } from 'react'
 import { useForm, Controller } from 'react-hook-form'
 import { useDispatch , useSelector } from 'react-redux'
 import { X } from 'lucide-react'
@@ -94,7 +94,7 @@ const TagChipInput = ({ tags, setTags }) => {
   )
 }
 
-const KanbanQuickAddForm = ({ widgetId, accentColor }) => {
+const KanbanQuickAddForm = ({ widgetId }) => {
   const dispatch = useDispatch()
   const [tags, setTags] = useState([])
   const user = useSelector((state) => state.auth.userData)
