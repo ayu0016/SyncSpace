@@ -1,8 +1,10 @@
-import { useEffect } from 'react'
+import { useEffect, Suspense } from 'react'
 import { useDispatch } from 'react-redux'
 import { Outlet } from 'react-router-dom'
 import { login, logout, setAuthInitialized } from './store/authSlice'
 import { authService } from './supabase/auth'
+import FullScreenSpinner from './components/FullScreenSpinner'
+import Tooltip from './components/ui/Tooltip'
 
 export default function App() {
   const dispatch = useDispatch()
@@ -33,5 +35,12 @@ export default function App() {
     return () => subscription.unsubscribe()
   }, [dispatch])
 
-  return <Outlet />  // ✅ renders whatever child route is active
+  return (
+    <>
+      <Suspense fallback={<FullScreenSpinner />}>
+        <Outlet />
+      </Suspense>
+      <Tooltip id="syncspace-tooltip" />
+    </>
+  )
 }

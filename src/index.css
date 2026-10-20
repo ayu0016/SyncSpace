@@ -1,6 +1,7 @@
 @import "tailwindcss";
 @import "@fontsource/plus-jakarta-sans";
 @import "@fontsource/jetbrains-mono";
+@import "react-tooltip/dist/react-tooltip.css";
 
 @theme {
 

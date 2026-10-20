@@ -16,7 +16,9 @@ export default function ModalHeader() {
       </div>
       <button
         onClick={() => navigate(-1)}
-        className="text-outline hover:text-white transition-colors active:scale-95 p-1 rounded-md"
+        data-tooltip-id="syncspace-tooltip"
+        data-tooltip-content="Close (Esc)"
+        className="text-outline hover:text-white transition-colors active:scale-95 p-1 rounded-md cursor-pointer"
       >
         <X size={20} strokeWidth={2.5} />
       </button>

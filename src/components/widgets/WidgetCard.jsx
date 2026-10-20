@@ -98,6 +98,8 @@ export default function WidgetCard({ widget, children, buttonLabel }) {
         {/* Quick add button — always pinned to bottom */}
         <button
             onClick={onLogClick}
+            data-tooltip-id="syncspace-tooltip"
+            data-tooltip-content={`Quick log entry for ${widget.name}`}
             className="w-full py-2 rounded-[9px] text-[12px] font-bold transition-opacity hover:opacity-85 active:scale-[0.98]"
             style={{
             background: accent,

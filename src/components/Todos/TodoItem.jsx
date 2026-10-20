@@ -80,6 +80,8 @@ export default function TodoItem({ todo }) {
       {/* Checkbox */}
       <button
         onClick={() => handleToggle(todo.id, todo.completed)}  
+        data-tooltip-id="syncspace-tooltip"
+        data-tooltip-content={todo.completed ? "Mark incomplete" : "Mark completed"}
         className={`
           shrink-0 w-4 h-4 rounded-full border-[1.5px]
           flex items-center justify-center
@@ -128,6 +130,8 @@ export default function TodoItem({ todo }) {
       {/* Trash icon */}
       <button
         onClick={handleDelete}
+        data-tooltip-id="syncspace-tooltip"
+        data-tooltip-content="Delete task"
         className="
           shrink-0 w-3.5 h-3.5
           text-white/0 group-hover:text-white/20

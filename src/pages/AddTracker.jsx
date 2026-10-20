@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
 import { addWidget } from '../store/widgetSlice'
@@ -22,6 +22,17 @@ export default function AddTracker() {
   const navigate = useNavigate()
   const user = useSelector(state => state.auth.userData)
   const widgets = useSelector(state => state.widgets.widgets)
+
+  // Close on Escape
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        navigate(-1)
+      }
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [navigate])
 
   // Tab state
   const [activeTab, setActiveTab] = useState('built-in')

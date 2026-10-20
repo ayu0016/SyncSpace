@@ -1,27 +1,29 @@
-import { StrictMode } from 'react'
+import { StrictMode, lazy } from 'react'
 import '@fontsource/jetbrains-mono'
 import '@fontsource/plus-jakarta-sans'
 import { createRoot } from 'react-dom/client'
 import './index.css'
 import App from './App.jsx'
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
-import LandingPage from './pages/LandingPage.jsx'
-import Login from './pages/Login.jsx'
-import SignUp from './pages/SignUp.jsx'
-import ForgotPassword from './pages/ForgotPassword.jsx'
-import ResetPassword from './pages/ResetPassword.jsx'
 import ProtectedRoutes from './components/ProtectedRoutes.jsx'
-import Dashboard from './pages/Dashboard.jsx'
-import AllWidget from './components/AllWidget.jsx'
-import AddTracker from './pages/AddTracker.jsx'
 import store from './store/store.js'
 import { Provider } from 'react-redux'
-import DSADeepDive from './pages/deepdive/DSADeepDive.jsx'
-import GymDeepDive from './pages/deepdive/GymDeepDive.jsx'
-import MLDeepDive from './pages/deepdive/MLDeepDive.jsx'
-import KanbanDeepDive from './pages/deepdive/KanbanDeepDive.jsx'
-import CustomDeepDive from './pages/deepdive/CustomDeepDive.jsx'
-import Profile from './pages/Profile.jsx'
+
+// ─── Lazy Loaded Route Pages for Code Splitting ────────────────────────────────
+const LandingPage = lazy(() => import('./pages/LandingPage.jsx'))
+const Login = lazy(() => import('./pages/Login.jsx'))
+const SignUp = lazy(() => import('./pages/SignUp.jsx'))
+const ForgotPassword = lazy(() => import('./pages/ForgotPassword.jsx'))
+const ResetPassword = lazy(() => import('./pages/ResetPassword.jsx'))
+const Dashboard = lazy(() => import('./pages/Dashboard.jsx'))
+const AllWidget = lazy(() => import('./components/AllWidget.jsx'))
+const AddTracker = lazy(() => import('./pages/AddTracker.jsx'))
+const Profile = lazy(() => import('./pages/Profile.jsx'))
+const DSADeepDive = lazy(() => import('./pages/deepdive/DSADeepDive.jsx'))
+const GymDeepDive = lazy(() => import('./pages/deepdive/GymDeepDive.jsx'))
+const MLDeepDive = lazy(() => import('./pages/deepdive/MLDeepDive.jsx'))
+const KanbanDeepDive = lazy(() => import('./pages/deepdive/KanbanDeepDive.jsx'))
+const CustomDeepDive = lazy(() => import('./pages/deepdive/CustomDeepDive.jsx'))
 
 const router = createBrowserRouter([
     {

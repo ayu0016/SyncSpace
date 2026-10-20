@@ -8,6 +8,7 @@ import MLCardContent from './widgets/ml/MlCardContent'
 import KanbanCardContent from './widgets/kanban/KanbanCardContent'
 import CustomCardContent from './widgets/custom/CustomCardContent'
 import Button from './Button'
+import ErrorBoundary from './ui/ErrorBoundary'
 
 const WIDGET_MAP = {
   dsa:    { Component: DSACardContent,    buttonLabel: '+ Log Problem'  },
@@ -55,16 +56,17 @@ function AllWidget() {
         const { Component } = config
 
         return (
-          <WidgetCard
-            key={widget.id}
-            widget={widget}
-            buttonLabel={config.buttonLabel}
-          >
-            <Component
+          <ErrorBoundary key={widget.id} title={`${widget.name || 'Tracker'} display error`}>
+            <WidgetCard
               widget={widget}
-              accent={widget.color}
-            />
-          </WidgetCard>
+              buttonLabel={config.buttonLabel}
+            >
+              <Component
+                widget={widget}
+                accent={widget.color}
+              />
+            </WidgetCard>
+          </ErrorBoundary>
         )
       })}
     </div>

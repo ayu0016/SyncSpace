@@ -108,7 +108,9 @@ const WidgetTile = ({ widget, entryCount, onDelete }) => {
               type="button"
               onClick={() => setFlipped(true)}
               aria-label={`Delete ${widget.name}`}
-              className="p-1.5 rounded-lg text-white/30 hover:text-red-400 hover:bg-red-500/10 transition-colors duration-200"
+              data-tooltip-id="syncspace-tooltip"
+              data-tooltip-content={`Delete ${widget.name}`}
+              className="p-1.5 rounded-lg text-white/30 hover:text-red-400 hover:bg-red-500/10 transition-colors duration-200 cursor-pointer"
             >
               <Trash2 size={15} />
             </button>

@@ -1,4 +1,4 @@
-import { useEffect, useCallback } from 'react'
+import { useEffect, useCallback, Suspense } from 'react'
 import Navbar from '../components/Navbar'
 import TodoPanel from '../components/Todos/TodoPannel'
 import TodoFAB from '../components/Todos/TodoFAB'
@@ -11,6 +11,8 @@ import { entryService } from '../supabase/entryServices'
 import { setWidgets } from '../store/widgetSlice'
 import { setEntries } from '../store/entriesSlice'
 import QuickAddModal from '../components/QuickAddModal'
+import FullScreenSpinner from '../components/FullScreenSpinner'
+import ErrorBoundary from '../components/ui/ErrorBoundary'
 
 import { Outlet } from 'react-router-dom'
 
@@ -53,7 +55,11 @@ export default function Dashboard() {
 
             {/* Left Section — Widget Grid / Deep Dive Outlet */}
             <div className={`w-full ${isDesktopTodoOpen ? 'lg:w-14/20' : 'lg:w-full'} p-4 sm:p-6 overflow-y-auto custom-scrollbar transition-all duration-300`}>
-                <Outlet />
+                <ErrorBoundary title="View error">
+                    <Suspense fallback={<FullScreenSpinner />}>
+                        <Outlet />
+                    </Suspense>
+                </ErrorBoundary>
             </div>
 
             {/* Right Section — Desktop only */}

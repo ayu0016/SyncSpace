@@ -578,16 +578,18 @@ export default function CustomDeepDive() {
                     <button
                       type="button"
                       onClick={() => handleEdit(row)}
-                      className="p-1 text-[#475569] hover:text-white transition-colors duration-150 rounded"
-                      title="Edit entry"
+                      data-tooltip-id="syncspace-tooltip"
+                      data-tooltip-content="Edit entry"
+                      className="p-1 text-[#475569] hover:text-white transition-colors duration-150 rounded cursor-pointer"
                     >
                       <Pencil size={13} />
                     </button>
                     <button
                       type="button"
                       onClick={() => setDeletingRowId(row.id)}
-                      className="p-1 text-[#475569] hover:text-[#ef4444] transition-colors duration-150 rounded"
-                      title="Delete entry"
+                      data-tooltip-id="syncspace-tooltip"
+                      data-tooltip-content="Delete entry"
+                      className="p-1 text-[#475569] hover:text-[#ef4444] transition-colors duration-150 rounded cursor-pointer"
                     >
                       <Trash2 size={13} />
                     </button>

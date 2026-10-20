@@ -105,12 +105,13 @@ export default function Navbar() {
         {/* Todo Toggle button */}
         <button
           onClick={() => dispatch(toggleTodo())}
+          data-tooltip-id="syncspace-tooltip"
+          data-tooltip-content={isDesktopTodoOpen || isTodoOpen ? "Hide tasks panel" : "Show tasks panel"}
           className={`flex items-center gap-2 px-3 sm:px-3.5 py-2 rounded-lg text-sm font-medium transition-all duration-200 focus:outline-none cursor-pointer active:scale-95 font-sans ${
             isDesktopTodoOpen || isTodoOpen
               ? "bg-[#4a9eed]/15 border border-[#4a9eed]/60 text-[#4a9eed] shadow-[0_0_12px_rgba(74,158,237,0.2)]"
               : "border border-white/10 text-white/60 hover:text-white hover:border-white/20 hover:bg-white/5"
           }`}
-          title={isDesktopTodoOpen ? "Hide Tasks Panel" : "Show Tasks Panel"}
         >
           <svg width="16" height="16" viewBox="0 0 18 18" fill="none" className="shrink-0">
             <rect x="2" y="3" width="14" height="12" rx="2" stroke="currentColor" strokeWidth="1.4"/>
@@ -127,6 +128,8 @@ export default function Navbar() {
         {/* Add New Tracker button */}
         <button
           onClick={handleAddTracker}
+          data-tooltip-id="syncspace-tooltip"
+          data-tooltip-content="Add built-in or custom tracker"
           className="flex items-center gap-2 px-3 sm:px-4 py-2 rounded-lg
             border border-[#4a9eed]/50 text-[#4a9eed] text-sm font-medium
             hover:bg-[#4a9eed]/10 hover:border-[#4a9eed]
@@ -140,6 +143,8 @@ export default function Navbar() {
         <div className="relative" ref={dropdownRef}>
           <button
             onClick={() => setDropdownOpen((prev) => !prev)}
+            data-tooltip-id="syncspace-tooltip"
+            data-tooltip-content="Profile & Settings"
             className="w-9 h-9 rounded-full flex items-center justify-center
               border border-[#4a9eed]/60 bg-white/5 backdrop-blur-sm
               text-white text-sm font-semibold

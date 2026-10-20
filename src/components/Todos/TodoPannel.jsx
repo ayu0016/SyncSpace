@@ -83,7 +83,8 @@ export default function TodoPanel({ isMobile = false }) {
         <button
           onClick={() => dispatch(CloseTodo())}
           className="text-white/30 hover:text-white/70 transition-colors duration-150 mt-1 cursor-pointer"
-          title={isMobile ? "Close" : "Hide Tasks Panel"}
+          data-tooltip-id="syncspace-tooltip"
+          data-tooltip-content={isMobile ? "Close panel" : "Hide tasks panel"}
         >
           <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
             <path d="M4 4l10 10M14 4L4 14" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>

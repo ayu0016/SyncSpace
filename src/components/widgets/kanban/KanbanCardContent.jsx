@@ -5,7 +5,7 @@
 
 import { useAnalytics } from "../widgetUtils"
 
-export default function KanbanCardContent({ widget, accent }) {
+export default function KanbanCardContent({ widget }) {
   const { buckets, entries } = useAnalytics(widget)
 
   const todoTasks       = entries.filter(e => e.payload?.status === 'todo')

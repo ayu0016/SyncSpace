@@ -85,6 +85,18 @@ const QuickAddModal = () => {
     }
   }, [isOpen])
 
+  // ── Keyboard shortcut: Escape to close modal ──────────────────────────────
+  useEffect(() => {
+    if (!isOpen) return
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        dispatch(closeModal())
+      }
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [isOpen, dispatch])
+
   const handleClose = () => dispatch(closeModal())
 
   if (!isRendered) return null
@@ -172,7 +184,9 @@ const QuickAddModal = () => {
 
           <button
             onClick={handleClose}
-            className="w-8 h-8 rounded-full flex items-center justify-center text-white/40 hover:text-white hover:bg-white/8 active:scale-95 transition-all duration-200"
+            data-tooltip-id="syncspace-tooltip"
+            data-tooltip-content="Close (Esc)"
+            className="w-8 h-8 rounded-full flex items-center justify-center text-white/40 hover:text-white hover:bg-white/8 active:scale-95 transition-all duration-200 cursor-pointer"
           >
             <X size={17} />
           </button>

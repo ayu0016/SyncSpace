@@ -43,6 +43,8 @@ const DeepDiveHeader = ({
               navigate('/dashboard')
               dispatch(setActiveWidget(null))
             }}
+            data-tooltip-id="syncspace-tooltip"
+            data-tooltip-content="Back to all trackers"
             className="flex items-center justify-center transition-colors duration-200 cursor-pointer"
             style={{ color: 'rgba(255,255,255,0.35)' }}
             onMouseEnter={e => e.currentTarget.style.color = '#ffffff'}

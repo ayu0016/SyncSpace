@@ -65,6 +65,8 @@ const RecentLog = ({
                 {dateFilter && (
                   <button
                     onClick={() => onDateChange('')}
+                    data-tooltip-id="syncspace-tooltip"
+                    data-tooltip-content="Clear date filter"
                     className="font-mono text-[10px] transition-colors duration-200 cursor-pointer"
                     style={{ color: 'rgba(239,68,68,0.7)' }}
                     onMouseEnter={e => (e.currentTarget.style.color = '#ef4444')}
